@@ -706,7 +706,6 @@
             <div class="nav-links">
                 <a href="#" class="nav-link">Categorías</a>
                 <a href="#" class="nav-link">Ofertas</a>
-                <a href="#" class="nav-link">Favoritos</a>
             </div>
         </div>
     </nav>
@@ -714,14 +713,14 @@
     <!-- Hero Section -->
     <section class="hero">
         <h1>Encuentra los mejores precios<br>en un solo lugar</h1>
-        <p>Compara ofertas de más de 50 tiendas y ahorra en cada compra</p>
+        <p>Compara ofertas y ahorra en tus compras.</p>
         
         <div class="search-container">
             <div class="search-box">
                 <input 
                     type="text" 
                     class="search-input" 
-                    placeholder="Buscar productos: ej. 'iPhone 13', 'laptop gaming'..."
+                    placeholder="Buscar productos: ej. 'Iphone 13', 'Laptop gaming'..."
                     id="searchInput"
                 >
                 <button class="search-btn" onclick="performSearch()">Buscar 🔍</button>
@@ -781,8 +780,8 @@
                 title: 'iPhone 13 128GB Azul Medianoche',
                 emoji: '📱',
                 gradient: 'linear-gradient(135deg, #0066FF, #00D9FF)',
-                currentPrice: 899,
-                oldPrice: 1099,
+                currentPrice: 5750000,
+                oldPrice: 7250000,
                 discount: 18,
                 specs: ['128GB', '5G', 'A15 Bionic']
             },
@@ -792,8 +791,8 @@
                 title: 'Laptop Dell Inspiron 15 - Intel i7',
                 emoji: '💻',
                 gradient: 'linear-gradient(135deg, #7C3AED, #00D9FF)',
-                currentPrice: 649,
-                oldPrice: 799,
+                currentPrice: 4870000,
+                oldPrice: 5990000,
                 discount: 19,
                 specs: ['i7 11th Gen', '16GB RAM', 'SSD 512GB']
             },
@@ -803,8 +802,8 @@
                 title: 'AirPods Pro 2da Generación',
                 emoji: '🎧',
                 gradient: 'linear-gradient(135deg, #10B981, #00D9FF)',
-                currentPrice: 199,
-                oldPrice: 249,
+                currentPrice: 1490000,
+                oldPrice: 1870000,
                 discount: 20,
                 specs: ['ANC', 'USB-C', 'H2 Chip']
             },
@@ -814,8 +813,8 @@
                 title: 'PlayStation 5 Standard Edition',
                 emoji: '🎮',
                 gradient: 'linear-gradient(135deg, #0066FF, #7C3AED)',
-                currentPrice: 499,
-                oldPrice: 559,
+                currentPrice: 3740000,
+                oldPrice: 4190000,
                 discount: 11,
                 specs: ['825GB SSD', '4K HDR', 'DualSense']
             },
@@ -825,8 +824,8 @@
                 title: 'Apple Watch Series 9 GPS 45mm',
                 emoji: '⌚',
                 gradient: 'linear-gradient(135deg, #F59E0B, #EF4444)',
-                currentPrice: 429,
-                oldPrice: 499,
+                currentPrice: 3220000,
+                oldPrice: 3740000,
                 discount: 14,
                 specs: ['GPS', 'Always-On', 'S9 Chip']
             },
@@ -836,8 +835,8 @@
                 title: 'iPad Air 5ta Gen 64GB WiFi',
                 emoji: '📱',
                 gradient: 'linear-gradient(135deg, #00D9FF, #10B981)',
-                currentPrice: 549,
-                oldPrice: 649,
+                currentPrice: 4120000,
+                oldPrice: 4870000,
                 discount: 15,
                 specs: ['M1 Chip', '10.9"', 'Touch ID']
             }
@@ -854,9 +853,6 @@
                         <div style="font-size: 4rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">
                             ${offer.emoji}
                         </div>
-                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite(${offer.id}, event)">
-                            ${isFavorite ? '❤️' : '🤍'}
-                        </button>
                         <div class="offer-badge">-${offer.discount}%</div>
                     </div>
                     <div class="offer-content">
@@ -867,8 +863,8 @@
                         </div>
                         <div class="offer-price-section">
                             <div class="price-row">
-                                <span class="price-current">$${offer.currentPrice}</span>
-                                <span class="price-old">$${offer.oldPrice}</span>
+                                <span class="price-current">₲${offer.currentPrice.toLocaleString('es-PY')}</span>
+                                <span class="price-old">₲${offer.oldPrice.toLocaleString('es-PY')}</span>
                             </div>
                             <div class="price-info">Envío gratis • Retiro en tienda</div>
                         </div>
