@@ -549,7 +549,7 @@
             font-weight: 500;
         }
         
-        /* Empty State */
+        /* Pantalla Vacia */
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -576,7 +576,7 @@
             margin-bottom: 30px;
         }
         
-        /* Error State */
+        /* Pantalla Error */
         .error-state {
             text-align: center;
             padding: 80px 20px;
@@ -623,7 +623,7 @@
             transform: translateY(-2px);
         }
         
-        /* Footer */
+        /* Pie de pagina */
         footer {
             background: white;
             border-top: 1px solid var(--gray-200);
@@ -738,7 +738,7 @@
 
     <!-- Main Content -->
     <div class="container">
-        <!-- Results Section -->
+        <!-- Seccion de Resultados -->
         <div id="resultsSection" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">Resultados de búsqueda</h2>
@@ -747,7 +747,7 @@
             <div class="offers-grid" id="searchResults"></div>
         </div>
 
-        <!-- Hot Offers Section -->
+        <!-- Seccion de Ofertas destacadas -->
         <div id="hotOffersSection">
             <div class="section-header">
                 <h2 class="section-title">🔥 Ofertas destacadas del día</h2>
@@ -757,7 +757,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- Pie de pagina -->
     <footer>
         <div class="footer-content">
             <div class="footer-links">
@@ -866,7 +866,6 @@
                                 <span class="price-current">₲${offer.currentPrice.toLocaleString('es-PY')}</span>
                                 <span class="price-old">₲${offer.oldPrice.toLocaleString('es-PY')}</span>
                             </div>
-                            <div class="price-info">Envío gratis • Retiro en tienda</div>
                         </div>
                         <div class="offer-actions">
                             <button class="btn btn-primary" onclick="viewOffer(${offer.id})">Ver oferta</button>
@@ -888,18 +887,18 @@
             renderHotOffers();
         }
 
-        // View offer
+        // Ver ofertas
         function viewOffer(id) {
             alert(`Redirigiendo a la oferta #${id}...\n\nEn producción, esto abriría el detalle de la oferta o redireccionaría a la tienda.`);
         }
 
-        // Render hot offers
+        // Ofertas destacadas
         function renderHotOffers() {
             const container = document.getElementById('hotOffers');
             container.innerHTML = sampleOffers.map(offer => renderOffer(offer)).join('');
         }
 
-        // Show loading state
+        // Mostrar "Cargando"
         function showLoading() {
             const container = document.getElementById('searchResults');
             container.innerHTML = `
@@ -910,7 +909,7 @@
             `;
         }
 
-        // Show empty state
+        // Mostrar pantalla vacia
         function showEmpty(query) {
             const container = document.getElementById('searchResults');
             container.innerHTML = `
@@ -927,7 +926,7 @@
             `;
         }
 
-        // Show error state
+        // Mostrar pantalla error
         function showError() {
             const container = document.getElementById('searchResults');
             container.innerHTML = `
@@ -942,7 +941,7 @@
             `;
         }
 
-        // Perform search
+        // Busqueda
         function performSearch() {
             const query = document.getElementById('searchInput').value.trim();
             
@@ -988,7 +987,7 @@
             }, 1200);
         }
 
-        // Quick search
+        // Busqueda rapida
         function quickSearch(term) {
             document.getElementById('searchInput').value = term;
             performSearch();
@@ -1001,7 +1000,7 @@
             }
         });
 
-        // Initialize
+        // Iniciar
         renderHotOffers();
     </script>
 </body>
