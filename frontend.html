@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* Definición de variables de colores globales */
             --primary: #0066FF;
             --primary-dark: #0052CC;
             --secondary: #00D9FF;
@@ -42,7 +43,7 @@
             overflow-x: hidden;
         }
         
-        /* Background pattern */
+        /* Patrón de fondo con degradados radiales */
         body::before {
             content: '';
             position: fixed;
@@ -58,7 +59,7 @@
             z-index: 0;
         }
         
-        /* Navbar */
+        /* Barra de navegación (Navbar) */
         .navbar {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -134,7 +135,7 @@
             width: 100%;
         }
         
-        /* Hero Section */
+        /* Sección Principal (Hero) */
         .hero {
             max-width: 1400px;
             margin: 0 auto;
@@ -175,7 +176,7 @@
             animation: fadeInUp 0.6s ease-out 0.1s both;
         }
         
-        /* Search Bar */
+        /* Barra de búsqueda */
         .search-container {
             max-width: 800px;
             margin: 0 auto 40px;
@@ -236,7 +237,7 @@
             transform: translateY(-50%) scale(0.98);
         }
         
-        /* Quick filters */
+        /* Filtros rápidos (Chips) */
         .quick-filters {
             display: flex;
             gap: 12px;
@@ -268,7 +269,7 @@
             color: white;
         }
         
-        /* Main Content */
+        /* Contenido Principal */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -277,7 +278,7 @@
             z-index: 1;
         }
         
-        /* Section Headers */
+        /* Cabeceras de Sección */
         .section-header {
             display: flex;
             align-items: center;
@@ -307,7 +308,7 @@
             gap: 12px;
         }
         
-        /* Offers Grid */
+        /* Cuadrícula de Ofertas (Grid) */
         .offers-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -325,6 +326,7 @@
             animation: fadeInUp 0.6s ease-out both;
         }
         
+        /* Retrasos de animación para las tarjetas */
         .offer-card:nth-child(1) { animation-delay: 0.1s; }
         .offer-card:nth-child(2) { animation-delay: 0.15s; }
         .offer-card:nth-child(3) { animation-delay: 0.2s; }
@@ -514,7 +516,7 @@
             background: var(--gray-200);
         }
         
-        /* Loading State */
+        /* Estado de carga */
         .loading-state {
             display: flex;
             flex-direction: column;
@@ -656,7 +658,7 @@
             color: var(--primary);
         }
         
-        /* Responsive */
+        /* Diseño Responsivo (Móviles) */
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2.5rem;
@@ -699,7 +701,6 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">Cazador de Ofertas</div>
@@ -710,7 +711,6 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero">
         <h1>Encuentra los mejores precios<br>en un solo lugar</h1>
         <p>Compara ofertas y ahorra en tus compras.</p>
@@ -736,9 +736,7 @@
         </div>
     </section>
 
-    <!-- Main Content -->
     <div class="container">
-        <!-- Seccion de Resultados -->
         <div id="resultsSection" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">Resultados de búsqueda</h2>
@@ -747,7 +745,6 @@
             <div class="offers-grid" id="searchResults"></div>
         </div>
 
-        <!-- Seccion de Ofertas destacadas -->
         <div id="hotOffersSection">
             <div class="section-header">
                 <h2 class="section-title">🔥 Ofertas destacadas del día</h2>
@@ -757,7 +754,6 @@
         </div>
     </div>
 
-    <!-- Pie de pagina -->
     <footer>
         <div class="footer-content">
             <div class="footer-links">
@@ -772,7 +768,7 @@
     </footer>
 
     <script>
-        // Sample data - En producción esto vendría de tu API Flask
+        // Datos de ejemplo - En producción esto vendría de una base de datos o API externa (como Flask)
         const sampleOffers = [
             {
                 id: 1,
@@ -842,9 +838,10 @@
             }
         ];
 
+        // Usamos un Set para guardar los IDs de los productos favoritos
         let favorites = new Set();
 
-        // Render offers
+        // Función para generar el HTML de una tarjeta de oferta individual
         function renderOffer(offer) {
             const isFavorite = favorites.has(offer.id);
             return `
@@ -876,29 +873,29 @@
             `;
         }
 
-        // Toggle favorite
+        // Función para alternar el estado de favorito (añadir/quitar)
         function toggleFavorite(id, event) {
-            event.stopPropagation();
+            event.stopPropagation(); // Evita que el clic active otros eventos del padre
             if (favorites.has(id)) {
                 favorites.delete(id);
             } else {
                 favorites.add(id);
             }
-            renderHotOffers();
+            renderHotOffers(); // Refresca la lista para mostrar cambios
         }
 
-        // Ver ofertas
+        // Función para simular la visualización de una oferta específica
         function viewOffer(id) {
             alert(`Redirigiendo a la oferta #${id}...\n\nEn producción, esto abriría el detalle de la oferta o redireccionaría a la tienda.`);
         }
 
-        // Ofertas destacadas
+        // Función para renderizar (dibujar) las ofertas destacadas en la página inicial
         function renderHotOffers() {
             const container = document.getElementById('hotOffers');
             container.innerHTML = sampleOffers.map(offer => renderOffer(offer)).join('');
         }
 
-        // Mostrar "Cargando"
+        // Función que muestra un spinner de carga mientras se "busca"
         function showLoading() {
             const container = document.getElementById('searchResults');
             container.innerHTML = `
@@ -909,7 +906,7 @@
             `;
         }
 
-        // Mostrar pantalla vacia
+        // Muestra un mensaje cuando la búsqueda no arroja resultados
         function showEmpty(query) {
             const container = document.getElementById('searchResults');
             container.innerHTML = `
@@ -926,7 +923,7 @@
             `;
         }
 
-        // Mostrar pantalla error
+        // Muestra un mensaje de error si la "petición" falla
         function showError() {
             const container = document.getElementById('searchResults');
             container.innerHTML = `
@@ -941,7 +938,7 @@
             `;
         }
 
-        // Busqueda
+        // Función principal de búsqueda
         function performSearch() {
             const query = document.getElementById('searchInput').value.trim();
             
@@ -950,28 +947,28 @@
                 return;
             }
 
-            // Show results section
+            // Cambiamos la visibilidad de las secciones (Ocultamos destacadas, mostramos resultados)
             document.getElementById('resultsSection').style.display = 'block';
             document.getElementById('hotOffersSection').style.display = 'none';
             
-            // Show loading
+            // Mostramos el estado de carga
             showLoading();
             
-            // Simulate API call
+            // Simulamos una llamada a una API con un retraso de 1.2 segundos
             setTimeout(() => {
-                // Simulate different results based on query
                 const lowerQuery = query.toLowerCase();
                 
-                // Simulate error (uncomment to test)
+                // Simulación de error (puedes descomentar esto para probar el error-state)
                 // showError();
                 // return;
                 
+                // Simulación de "no resultados" para términos específicos
                 if (lowerQuery.includes('xyz') || lowerQuery.includes('test404')) {
                     showEmpty(query);
                     return;
                 }
                 
-                // Filter offers based on query
+                // Filtramos los datos de ejemplo basándonos en el título, tienda o especificaciones
                 const results = sampleOffers.filter(offer => 
                     offer.title.toLowerCase().includes(lowerQuery) ||
                     offer.store.toLowerCase().includes(lowerQuery) ||
@@ -982,25 +979,26 @@
                     showEmpty(query);
                 } else {
                     const container = document.getElementById('searchResults');
+                    // Renderizamos los resultados encontrados
                     container.innerHTML = results.map(offer => renderOffer(offer)).join('');
                 }
             }, 1200);
         }
 
-        // Busqueda rapida
+        // Función para los botones de acceso rápido (chips)
         function quickSearch(term) {
             document.getElementById('searchInput').value = term;
             performSearch();
         }
 
-        // Handle Enter key
+        // Manejador de evento para permitir buscar al presionar la tecla "Enter"
         document.getElementById('searchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performSearch();
             }
         });
 
-        // Iniciar
+        // Iniciar la aplicación cargando las ofertas destacadas al abrir la página
         renderHotOffers();
     </script>
 </body>
