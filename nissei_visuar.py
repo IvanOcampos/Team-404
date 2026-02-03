@@ -165,91 +165,90 @@ def scraper_nissei():
 # SCRAPER DE SHOPPING CHINA - ELECTRÓNICOS
 # ======================================================
 
-def scraper_shopping_china():
-    """Scraper Shopping China - precios reales desde ficha de producto"""
-    if not SELENIUM_DISPONIBLE:
-        print("⚠️ Selenium no disponible")
-        return []
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+import time
 
-    print("🔍 Buscando en Shopping China (Selenium real)...")
+def scraper_visuar():
+    """Extrae productos de Visuar usando Selenium"""
+    print("🔍 Buscando en Visuar con Selenium...")
     productos = []
 
-    base_url = "https://www.shoppingchina.com.py"
-    url = base_url + "/electronicos"
-
-    driver = None
     try:
+        # Configuración de Selenium
         options = Options()
-        options.add_argument("--start-maximized")
-        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--headless")  # Ejecuta sin abrir ventana
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--window-size=1920,1080")
 
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
+        # URL de categoría de celulares/electrónica
+        url = "https://visuar.com.py/categoria/celulares/"  # Cambiar según categoría
         driver.get(url)
+        time.sleep(3)  # Espera inicial para que cargue la página
 
-        wait = WebDriverWait(driver, 20)
-        wait.until(
-            EC.presence_of_element_located((By.CLASS_NAME, "text-uppercase"))
-        )
+        # Scroll para cargar productos dinámicos
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
 
-        # Scroll
-        for _ in range(4):
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
+        # Buscar productos
+        # Visuar usa 'div' con clase 'product-block' para cada producto
+        items = driver.find_elements(By.CSS_SELECTOR, "div.product-block")
+        print(f"   ✓ Productos encontrados: {len(items)}")
 
-        items = driver.find_elements(
-            By.XPATH, "//a[contains(@href, '/producto/')]"
-        )
-
-        links = list(dict.fromkeys([i.get_attribute("href") for i in items]))
-        print(f"   ✓ Productos detectados: {len(links)}")
-
-        for link in links[:40]:  # LIMITA para no matar tiempo
+        for item in items:
             try:
-                driver.get(link)
-                time.sleep(1.5)
+                # Título
+                titulo_tag = item.find_element(By.CSS_SELECTOR, "h3.product-title a")
+                titulo = titulo_tag.text.strip()
+                link = titulo_tag.get_attribute("href")
 
-                titulo = driver.find_element(
-                    By.CLASS_NAME, "text-uppercase"
-                ).text.strip()
+                # Precio actual
+                try:
+                    precio_tag = item.find_element(By.CSS_SELECTOR, "span.price")
+                    precio_texto = precio_tag.text.strip()
+                    precio_numero = limpiar_precio(precio_texto)
+                except:
+                    precio_texto = None
+                    precio_numero = None
 
-                precio_actual_texto = driver.find_element(
-                    By.CLASS_NAME, "sc-text-danger"
-                ).text.strip()
-
-                precio_actual = limpiar_precio(precio_actual_texto)
-                if not precio_actual:
+                if not precio_numero:
                     continue
 
+                # Precio anterior (opcional)
                 try:
-                    precio_antes_texto = driver.find_element(
-                        By.CLASS_NAME, "sc-text-primary"
-                    ).text.strip()
+                    precio_antes_tag = item.find_element(By.CSS_SELECTOR, "span.old-price")
+                    precio_antes_texto = precio_antes_tag.text.strip()
                 except:
                     precio_antes_texto = None
 
                 productos.append({
-                    "tienda": "Shopping China",
+                    "tienda": "Visuar",
                     "titulo": titulo,
                     "precio_antes": precio_antes_texto,
-                    "precio_ahora": precio_actual_texto,
-                    "precio_numero": precio_actual,
+                    "precio_ahora": precio_texto,
+                    "precio_numero": precio_numero,
                     "link": link
                 })
-
-            except Exception:
+            except:
                 continue
 
+        driver.quit()
         print(f"   ✓ Extraídos {len(productos)} productos válidos\n")
 
     except Exception as e:
-        print(f"   ✗ Error Shopping China: {e}")
-    finally:
-        if driver:
+        print(f"   ✗ Error Visuar: {e}\n")
+        if 'driver' in locals():
             driver.quit()
 
     return productos
+
+
 
 # ======================================================
 # MOSTRAR RESULTADOS
@@ -317,7 +316,7 @@ def main():
     todos_productos.extend(productos_nissei)
     time.sleep(2)
 
-    productos_china = scraper_shopping_china()
+    productos_china = scraper_visuar_selenium()
     todos_productos.extend(productos_china)
 
     mostrar_ofertas(todos_productos)
