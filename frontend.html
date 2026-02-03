@@ -3,1003 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cazador de Ofertas - Comparador de Precios</title>
+    <title>Cazador de Ofertas - Estilo Dark Tech</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Definición de variables de colores globales */
-            --primary: #0066FF;
-            --primary-dark: #0052CC;
-            --secondary: #00D9FF;
-            --secondary-light: #33E0FF;
-            --accent: #7C3AED;
-            --success: #10B981;
-            --error: #EF4444;
-            --warning: #F59E0B;
-            
-            --gray-50: #F9FAFB;
-            --gray-100: #F3F4F6;
-            --gray-200: #E5E7EB;
-            --gray-300: #D1D5DB;
-            --gray-500: #6B7280;
-            --gray-700: #374151;
-            --gray-900: #111827;
-            
+            --primary: #00d9ff;
+            --primary-dark: #0066ff;
+            --bg-dark: #030a1e;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #ffffff;
+            --text-dim: #b0b8d1;
             --font-display: 'Outfit', sans-serif;
             --font-body: 'DM Sans', sans-serif;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+
+        /* --- LÓGICA DE NAVEGACIÓN --- */
+        #screen-switch { display: none; }
+        #screen-switch:checked ~ #welcome-page { display: none; }
+        #search-page { display: none; }
+        #screen-switch:checked ~ #search-page { display: block; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: var(--font-body);
-            color: var(--gray-900);
-            background: var(--gray-50);
-            line-height: 1.6;
+            color: var(--text-main);
+            background-color: var(--bg-dark);
+            min-height: 100vh;
             overflow-x: hidden;
         }
-        
-        /* Patrón de fondo con degradados radiales */
+
+        /* FONDO TECNOLÓGICO (Mantenido) */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: 
-                radial-gradient(circle at 20% 30%, rgba(0, 102, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(0, 217, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
+                radial-gradient(circle, rgba(0, 217, 255, 0.3) 1px, transparent 1px) 0 0 / 30px 30px,
+                linear-gradient(135deg, rgba(13, 31, 75, 0.9) 0%, rgba(3, 10, 30, 1) 100%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px);
+            z-index: -2;
         }
-        
-        /* Barra de navegación (Navbar) */
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--gray-200);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            animation: slideDown 0.5s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 70px;
-        }
-        
-        .logo {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        
-        .nav-link {
-            color: var(--gray-700);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            position: relative;
-        }
-        
-        .nav-link:hover {
-            color: var(--primary);
-        }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
-            transition: width 0.3s;
-        }
-        
-        .nav-link:hover::after {
-            width: 100%;
-        }
-        
-        /* Sección Principal (Hero) */
-        .hero {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 80px 20px 60px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .hero h1 {
-            font-family: var(--font-display);
-            font-size: 4rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--gray-900), var(--gray-700));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .hero p {
-            font-size: 1.3rem;
-            color: var(--gray-500);
-            margin-bottom: 50px;
-            animation: fadeInUp 0.6s ease-out 0.1s both;
-        }
-        
-        /* Barra de búsqueda */
-        .search-container {
-            max-width: 800px;
-            margin: 0 auto 40px;
-            animation: fadeInUp 0.6s ease-out 0.2s both;
-        }
-        
-        .search-box {
-            position: relative;
-            background: white;
-            border-radius: 16px;
-            padding: 8px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s;
-        }
-        
-        .search-box:focus-within {
-            box-shadow: 0 8px 32px rgba(0, 102, 255, 0.15);
-            transform: translateY(-2px);
-        }
-        
-        .search-input {
-            width: calc(100% - 140px);
-            padding: 18px 24px;
-            font-size: 1.1rem;
-            border: none;
-            outline: none;
-            font-family: var(--font-body);
-            color: var(--gray-900);
-        }
-        
-        .search-input::placeholder {
-            color: var(--gray-500);
-        }
-        
-        .search-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 14px 32px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: var(--font-body);
-        }
-        
-        .search-btn:hover {
-            box-shadow: 0 4px 16px rgba(0, 102, 255, 0.4);
-            transform: translateY(-50%) scale(1.05);
-        }
-        
-        .search-btn:active {
-            transform: translateY(-50%) scale(0.98);
-        }
-        
-        /* Filtros rápidos (Chips) */
-        .quick-filters {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeInUp 0.6s ease-out 0.3s both;
-        }
-        
-        .filter-chip {
-            padding: 10px 20px;
-            background: white;
-            border: 2px solid var(--gray-200);
-            border-radius: 24px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .filter-chip:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            transform: translateY(-2px);
-        }
-        
-        .filter-chip.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-        
-        /* Contenido Principal */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Cabeceras de Sección */
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .section-title {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gray-900);
-        }
-        
-        .section-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-        
-        .section-link:hover {
-            gap: 12px;
-        }
-        
-        /* Cuadrícula de Ofertas (Grid) */
-        .offers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-            margin-bottom: 60px;
-        }
-        
-        .offer-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            animation: fadeInUp 0.6s ease-out both;
-        }
-        
-        /* Retrasos de animación para las tarjetas */
-        .offer-card:nth-child(1) { animation-delay: 0.1s; }
-        .offer-card:nth-child(2) { animation-delay: 0.15s; }
-        .offer-card:nth-child(3) { animation-delay: 0.2s; }
-        .offer-card:nth-child(4) { animation-delay: 0.25s; }
-        .offer-card:nth-child(5) { animation-delay: 0.3s; }
-        .offer-card:nth-child(6) { animation-delay: 0.35s; }
-        
-        .offer-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-        }
-        
-        .offer-image {
-            position: relative;
-            height: 220px;
-            background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            overflow: hidden;
-        }
-        
-        .offer-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 217, 255, 0.1));
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .offer-card:hover .offer-image::before {
-            opacity: 1;
-        }
-        
-        .favorite-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.2s;
-            z-index: 2;
-        }
-        
-        .favorite-btn:hover {
-            transform: scale(1.1);
-            background: white;
-        }
-        
-        .favorite-btn.active {
-            background: var(--error);
-            color: white;
-        }
-        
-        .offer-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            padding: 6px 14px;
-            background: var(--success);
-            color: white;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            z-index: 2;
-        }
-        
-        .offer-content {
-            padding: 20px;
-        }
-        
-        .offer-store {
-            font-size: 0.85rem;
-            color: var(--gray-500);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-        
-        .offer-title {
-            font-family: var(--font-display);
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin-bottom: 12px;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .offer-specs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-        
-        .spec-tag {
-            padding: 4px 10px;
-            background: var(--gray-100);
-            color: var(--gray-700);
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .offer-price-section {
-            margin-bottom: 16px;
-        }
-        
-        .price-row {
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-        
-        .price-current {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-        
-        .price-old {
-            font-size: 1.2rem;
-            color: var(--gray-500);
-            text-decoration: line-through;
-        }
-        
-        .price-info {
-            font-size: 0.85rem;
-            color: var(--gray-500);
-        }
-        
-        .offer-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: var(--font-body);
-        }
-        
-        .btn-primary {
-            flex: 1;
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
-        }
-        
-        .btn-secondary {
-            padding: 12px 16px;
-            background: var(--gray-100);
-            color: var(--gray-700);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--gray-200);
-        }
-        
-        /* Estado de carga */
-        .loading-state {
+
+        /* PANTALLA BIENVENIDA */
+        #welcome-page {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 80px 20px;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--gray-200);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            font-size: 1.2rem;
-            color: var(--gray-600);
-            font-weight: 500;
-        }
-        
-        /* Pantalla Vacia */
-        .empty-state {
+            height: 100vh;
             text-align: center;
-            padding: 80px 20px;
-            animation: fadeIn 0.3s ease-out;
         }
-        
-        .empty-icon {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        .empty-title {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin-bottom: 12px;
-        }
-        
-        .empty-text {
-            font-size: 1.1rem;
-            color: var(--gray-500);
-            margin-bottom: 30px;
-        }
-        
-        /* Pantalla Error */
-        .error-state {
-            text-align: center;
-            padding: 80px 20px;
-            background: white;
-            border-radius: 16px;
-            margin: 40px 0;
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .error-icon {
-            font-size: 5rem;
-            margin-bottom: 20px;
-        }
-        
-        .error-title {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--error);
-            margin-bottom: 12px;
-        }
-        
-        .error-text {
-            font-size: 1.1rem;
-            color: var(--gray-600);
-            margin-bottom: 30px;
-        }
-        
-        .btn-retry {
-            padding: 14px 32px;
-            background: var(--error);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
+
+        .btn-enter {
+            background: var(--primary);
+            color: #030a1e;
+            padding: 20px 50px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
-            font-family: var(--font-body);
+            font-family: var(--font-display);
+            transition: 0.3s;
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.4);
+            margin-top: 30px;
         }
-        
-        .btn-retry:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
+
+        /* PANTALLA BÚSQUEDA */
+        .navbar {
+            background: rgba(3, 10, 30, 0.7);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky; top: 0; z-index: 100;
         }
-        
-        /* Pie de pagina */
-        footer {
-            background: white;
-            border-top: 1px solid var(--gray-200);
-            margin-top: 80px;
-            padding: 40px 20px;
+
+        .nav-container {
+            max-width: 1400px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between; height: 70px;
         }
-        
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            text-align: center;
-            color: var(--gray-500);
+
+        .logo { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: #ffffff; }
+
+        .hero { max-width: 1400px; margin: 0 auto; padding: 60px 20px; text-align: center; }
+
+        .hero h1 {
+            font-family: var(--font-display); font-size: 3.5rem; font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #a0aec0 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        
-        .footer-links {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            margin-bottom: 20px;
+
+        .search-box {
+            max-width: 800px; margin: 30px auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 8px; display: flex; backdrop-filter: blur(10px);
         }
-        
-        .footer-link {
-            color: var(--gray-600);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
+
+        .search-input {
+            flex: 1; background: transparent; border: none;
+            padding: 15px 20px; color: white; font-size: 1.1rem; outline: none;
         }
-        
-        .footer-link:hover {
-            color: var(--primary);
+
+        .search-btn {
+            background: var(--primary); color: #030a1e; border: none;
+            padding: 0 30px; border-radius: 12px; font-weight: 700; cursor: pointer;
         }
+
+        /* TARJETAS Y FAVORITOS */
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+
+        .offer-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px; overflow: hidden; position: relative; transition: 0.3s;
+        }
+
+        .offer-image { height: 200px; display: flex; align-items: center; justify-content: center; position: relative; }
         
-        /* Diseño Responsivo (Móviles) */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            .search-input {
-                width: 100%;
-                padding: 16px 20px;
-            }
-            
-            .search-btn {
-                position: static;
-                transform: none;
-                width: 100%;
-                margin-top: 10px;
-            }
-            
-            .search-btn:hover {
-                transform: scale(1.02);
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .offers-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
+        .fav-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(0,0,0,0.4); border: none; color: white;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            font-size: 1.2rem; transition: 0.3s; z-index: 5;
+        }
+        .fav-btn.active { color: #ff4d4d; background: white; }
+
+        .offer-content { padding: 20px; }
+        .offer-title { color: white; font-size: 1.2rem; margin-bottom: 10px; }
+        .price-current { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
+
+        .btn-primary {
+            width: 100%; padding: 12px; background: transparent;
+            border: 1px solid var(--primary); color: var(--primary);
+            border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">Cazador de Ofertas</div>
-            <div class="nav-links">
-                <a href="#" class="nav-link">Categorías</a>
-                <a href="#" class="nav-link">Ofertas</a>
-            </div>
-        </div>
-    </nav>
 
-    <section class="hero">
-        <h1>Encuentra los mejores precios<br>en un solo lugar</h1>
-        <p>Compara ofertas y ahorra en tus compras.</p>
-        
-        <div class="search-container">
+    <input type="checkbox" id="screen-switch">
+
+    <div id="welcome-page">
+        <h1 style="font-family: var(--font-display); font-size: 4rem; font-weight: 800;">Bienvenidos al mejor<br>cazador de ofertas</h1>
+        <label for="screen-switch" class="btn-enter">ENTRAR A BUSCAR</label>
+    </div>
+
+    <div id="search-page">
+        <nav class="navbar">
+            <div class="nav-container"><div class="logo">Cazador de Ofertas</div></div>
+        </nav>
+
+        <section class="hero">
+            <h1>¿Qué quieres encontrar hoy?</h1>
             <div class="search-box">
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    placeholder="Buscar productos: ej. 'Iphone 13', 'Laptop gaming'..."
-                    id="searchInput"
-                >
-                <button class="search-btn" onclick="performSearch()">Buscar 🔍</button>
+                <input type="text" id="userInput" class="search-input" placeholder="Busca 'celulares', 'iPhone', 'audio'...">
+                <button class="search-btn" onclick="ejecutarBusqueda()">Buscar 🔍</button>
             </div>
-        </div>
-        
-        <div class="quick-filters">
-            <div class="filter-chip" onclick="quickSearch('celulares')">📱 Celulares</div>
-            <div class="filter-chip" onclick="quickSearch('laptops')">💻 Laptops</div>
-            <div class="filter-chip" onclick="quickSearch('auriculares')">🎧 Auriculares</div>
-            <div class="filter-chip" onclick="quickSearch('tablets')">📱 Tablets</div>
-            <div class="filter-chip" onclick="quickSearch('smartwatch')">⌚ Smartwatches</div>
-        </div>
-    </section>
+        </section>
 
-    <div class="container">
-        <div id="resultsSection" style="display: none;">
-            <div class="section-header">
-                <h2 class="section-title">Resultados de búsqueda</h2>
-                <a href="#" class="section-link">Ver todos →</a>
-            </div>
-            <div class="offers-grid" id="searchResults"></div>
-        </div>
-
-        <div id="hotOffersSection">
-            <div class="section-header">
-                <h2 class="section-title">🔥 Ofertas destacadas del día</h2>
-                <a href="#" class="section-link">Ver más →</a>
-            </div>
-            <div class="offers-grid" id="hotOffers"></div>
+        <div class="container">
+            <h2 id="result-title" style="margin-bottom: 30px;">🔥 Ofertas destacadas</h2>
+            <div class="offers-grid" id="grid-productos">
+                </div>
         </div>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="#" class="footer-link">Acerca de</a>
-                <a href="#" class="footer-link">Términos</a>
-                <a href="#" class="footer-link">Privacidad</a>
-                <a href="#" class="footer-link">Contacto</a>
-                <a href="#" class="footer-link">API</a>
-            </div>
-            <p>© 2026 Cazador de Ofertas. Comparador de precios inteligente.</p>
-        </div>
-    </footer>
-
     <script>
-        // Datos de ejemplo - En producción esto vendría de una base de datos o API externa (como Flask)
-        const sampleOffers = [
-            {
-                id: 1,
-                store: 'TechStore',
-                title: 'iPhone 13 128GB Azul Medianoche',
-                emoji: '📱',
-                gradient: 'linear-gradient(135deg, #0066FF, #00D9FF)',
-                currentPrice: 5750000,
-                oldPrice: 7250000,
-                discount: 18,
-                specs: ['128GB', '5G', 'A15 Bionic']
-            },
-            {
-                id: 2,
-                store: 'ElectroMundo',
-                title: 'Laptop Dell Inspiron 15 - Intel i7',
-                emoji: '💻',
-                gradient: 'linear-gradient(135deg, #7C3AED, #00D9FF)',
-                currentPrice: 4870000,
-                oldPrice: 5990000,
-                discount: 19,
-                specs: ['i7 11th Gen', '16GB RAM', 'SSD 512GB']
-            },
-            {
-                id: 3,
-                store: 'AudioPremium',
-                title: 'AirPods Pro 2da Generación',
-                emoji: '🎧',
-                gradient: 'linear-gradient(135deg, #10B981, #00D9FF)',
-                currentPrice: 1490000,
-                oldPrice: 1870000,
-                discount: 20,
-                specs: ['ANC', 'USB-C', 'H2 Chip']
-            },
-            {
-                id: 4,
-                store: 'GamerZone',
-                title: 'PlayStation 5 Standard Edition',
-                emoji: '🎮',
-                gradient: 'linear-gradient(135deg, #0066FF, #7C3AED)',
-                currentPrice: 3740000,
-                oldPrice: 4190000,
-                discount: 11,
-                specs: ['825GB SSD', '4K HDR', 'DualSense']
-            },
-            {
-                id: 5,
-                store: 'SmartLife',
-                title: 'Apple Watch Series 9 GPS 45mm',
-                emoji: '⌚',
-                gradient: 'linear-gradient(135deg, #F59E0B, #EF4444)',
-                currentPrice: 3220000,
-                oldPrice: 3740000,
-                discount: 14,
-                specs: ['GPS', 'Always-On', 'S9 Chip']
-            },
-            {
-                id: 6,
-                store: 'TabletWorld',
-                title: 'iPad Air 5ta Gen 64GB WiFi',
-                emoji: '📱',
-                gradient: 'linear-gradient(135deg, #00D9FF, #10B981)',
-                currentPrice: 4120000,
-                oldPrice: 4870000,
-                discount: 15,
-                specs: ['M1 Chip', '10.9"', 'Touch ID']
-            }
+        // "Base de Datos" temporal
+        const productos = [
+            { id: 1, nombre: "iPhone 13 128GB", tienda: "TechStore", precio: "5.750.000", emoji: "📱", color: "#0066FF", cat: "celular" },
+            { id: 2, nombre: "Samsung S23 Ultra", tienda: "SmartShop", precio: "7.200.000", emoji: "📱", color: "#7C3AED", cat: "celular" },
+            { id: 3, nombre: "AirPods Pro 2", tienda: "AudioLux", precio: "1.490.000", emoji: "🎧", color: "#10B981", cat: "audio" },
+            { id: 4, nombre: "Xiaomi Redmi 12", tienda: "EcoTech", precio: "1.250.000", emoji: "📱", color: "#FF5733", cat: "celular" },
+            { id: 5, nombre: "Sony WH-1000XM5", tienda: "AudioLux", precio: "2.800.000", emoji: "🎧", color: "#00D9FF", cat: "audio" }
         ];
 
-        // Usamos un Set para guardar los IDs de los productos favoritos
-        let favorites = new Set();
+        function ejecutarBusqueda() {
+            const input = document.getElementById('userInput').value.trim().toLowerCase();
+            const grid = document.getElementById('grid-productos');
+            const title = document.getElementById('result-title');
+            grid.innerHTML = ""; // Limpiar pantalla
 
-        // Función para generar el HTML de una tarjeta de oferta individual
-        function renderOffer(offer) {
-            const isFavorite = favorites.has(offer.id);
-            return `
-                <div class="offer-card">
-                    <div class="offer-image" style="background: ${offer.gradient}">
-                        <div style="font-size: 4rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">
-                            ${offer.emoji}
-                        </div>
-                        <div class="offer-badge">-${offer.discount}%</div>
-                    </div>
-                    <div class="offer-content">
-                        <div class="offer-store">${offer.store}</div>
-                        <h3 class="offer-title">${offer.title}</h3>
-                        <div class="offer-specs">
-                            ${offer.specs.map(spec => `<span class="spec-tag">${spec}</span>`).join('')}
-                        </div>
-                        <div class="offer-price-section">
-                            <div class="price-row">
-                                <span class="price-current">₲${offer.currentPrice.toLocaleString('es-PY')}</span>
-                                <span class="price-old">₲${offer.oldPrice.toLocaleString('es-PY')}</span>
-                            </div>
-                        </div>
-                        <div class="offer-actions">
-                            <button class="btn btn-primary" onclick="viewOffer(${offer.id})">Ver oferta</button>
-                            <button class="btn btn-secondary">📊</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Función para alternar el estado de favorito (añadir/quitar)
-        function toggleFavorite(id, event) {
-            event.stopPropagation(); // Evita que el clic active otros eventos del padre
-            if (favorites.has(id)) {
-                favorites.delete(id);
-            } else {
-                favorites.add(id);
-            }
-            renderHotOffers(); // Refresca la lista para mostrar cambios
-        }
-
-        // Función para simular la visualización de una oferta específica
-        function viewOffer(id) {
-            alert(`Redirigiendo a la oferta #${id}...\n\nEn producción, esto abriría el detalle de la oferta o redireccionaría a la tienda.`);
-        }
-
-        // Función para renderizar (dibujar) las ofertas destacadas en la página inicial
-        function renderHotOffers() {
-            const container = document.getElementById('hotOffers');
-            container.innerHTML = sampleOffers.map(offer => renderOffer(offer)).join('');
-        }
-
-        // Función que muestra un spinner de carga mientras se "busca"
-        function showLoading() {
-            const container = document.getElementById('searchResults');
-            container.innerHTML = `
-                <div class="loading-state" style="grid-column: 1 / -1;">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Buscando las mejores ofertas...</div>
-                </div>
-            `;
-        }
-
-        // Muestra un mensaje cuando la búsqueda no arroja resultados
-        function showEmpty(query) {
-            const container = document.getElementById('searchResults');
-            container.innerHTML = `
-                <div class="empty-state" style="grid-column: 1 / -1;">
-                    <div class="empty-icon">🔍</div>
-                    <h3 class="empty-title">No encontramos resultados</h3>
-                    <p class="empty-text">No hay ofertas para "${query}". Intenta con otros términos de búsqueda.</p>
-                    <div class="quick-filters">
-                        <div class="filter-chip" onclick="quickSearch('celulares')">📱 Celulares</div>
-                        <div class="filter-chip" onclick="quickSearch('laptops')">💻 Laptops</div>
-                        <div class="filter-chip" onclick="quickSearch('auriculares')">🎧 Auriculares</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Muestra un mensaje de error si la "petición" falla
-        function showError() {
-            const container = document.getElementById('searchResults');
-            container.innerHTML = `
-                <div style="grid-column: 1 / -1;">
-                    <div class="error-state">
-                        <div class="error-icon">⚠️</div>
-                        <h3 class="error-title">Error al cargar ofertas</h3>
-                        <p class="error-text">No pudimos conectar con el servidor. Por favor, intenta de nuevo.</p>
-                        <button class="btn-retry" onclick="performSearch()">Reintentar</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Función principal de búsqueda
-        function performSearch() {
-            const query = document.getElementById('searchInput').value.trim();
-            
-            if (!query) {
-                alert('Por favor ingresa un término de búsqueda');
+            // Si no hay búsqueda, mostrar todo
+            if (input === "") {
+                mostrarProductos(productos);
+                title.textContent = "🔥 Ofertas destacadas";
                 return;
             }
 
-            // Cambiamos la visibilidad de las secciones (Ocultamos destacadas, mostramos resultados)
-            document.getElementById('resultsSection').style.display = 'block';
-            document.getElementById('hotOffersSection').style.display = 'none';
-            
-            // Mostramos el estado de carga
-            showLoading();
-            
-            // Simulamos una llamada a una API con un retraso de 1.2 segundos
-            setTimeout(() => {
-                const lowerQuery = query.toLowerCase();
+            // Buscar productos que coincidan con la búsqueda
+            const filtrados = productos.filter(p => {
+                // Buscar en el nombre del producto
+                const nombreCoincide = p.nombre.toLowerCase().includes(input);
                 
-                // Simulación de error (puedes descomentar esto para probar el error-state)
-                // showError();
-                // return;
+                // Buscar en la categoría
+                const categoriaCoincide = p.cat.toLowerCase().includes(input);
                 
-                // Simulación de "no resultados" para términos específicos
-                if (lowerQuery.includes('xyz') || lowerQuery.includes('test404')) {
-                    showEmpty(query);
-                    return;
+                // Buscar en la tienda
+                const tiendaCoincide = p.tienda.toLowerCase().includes(input);
+                
+                // También buscar variaciones de palabras comunes
+                let palabraRelacionada = false;
+                if (input.includes("celular") || input.includes("cel") || input.includes("telefono") || input.includes("phone")) {
+                    palabraRelacionada = p.cat === "celular";
+                }
+                if (input.includes("audio") || input.includes("audifonos") || input.includes("auricular") || input.includes("headphone")) {
+                    palabraRelacionada = p.cat === "audio";
                 }
                 
-                // Filtramos los datos de ejemplo basándonos en el título, tienda o especificaciones
-                const results = sampleOffers.filter(offer => 
-                    offer.title.toLowerCase().includes(lowerQuery) ||
-                    offer.store.toLowerCase().includes(lowerQuery) ||
-                    offer.specs.some(spec => spec.toLowerCase().includes(lowerQuery))
-                );
-                
-                if (results.length === 0) {
-                    showEmpty(query);
-                } else {
-                    const container = document.getElementById('searchResults');
-                    // Renderizamos los resultados encontrados
-                    container.innerHTML = results.map(offer => renderOffer(offer)).join('');
-                }
-            }, 1200);
-        }
+                return nombreCoincide || categoriaCoincide || tiendaCoincide || palabraRelacionada;
+            });
 
-        // Función para los botones de acceso rápido (chips)
-        function quickSearch(term) {
-            document.getElementById('searchInput').value = term;
-            performSearch();
-        }
-
-        // Manejador de evento para permitir buscar al presionar la tecla "Enter"
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch();
+            if (filtrados.length === 0) {
+                grid.innerHTML = "<p style='color: var(--text-dim); font-size: 1.2rem;'>No se encontraron resultados para '" + input + "'. Intenta con otra búsqueda.</p>";
+                title.textContent = "❌ Sin resultados";
+                return;
             }
-        });
 
-        // Iniciar la aplicación cargando las ofertas destacadas al abrir la página
-        renderHotOffers();
+            mostrarProductos(filtrados);
+            title.textContent = "🔍 Resultados para: " + input + " (" + filtrados.length + ")";
+        }
+
+        function mostrarProductos(listaProductos) {
+            const grid = document.getElementById('grid-productos');
+            
+            listaProductos.forEach(p => {
+                grid.innerHTML += `
+                    <div class="offer-card">
+                        <div class="offer-image" style="background: linear-gradient(45deg, ${p.color}, #00D9FF)">
+                            <button class="fav-btn" onclick="toggleFav(this)">❤</button>
+                            <span style="font-size: 4rem;">${p.emoji}</span>
+                        </div>
+                        <div class="offer-content">
+                            <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold;">${p.tienda}</div>
+                            <h3 class="offer-title">${p.nombre}</h3>
+                            <div class="price-current">₲${p.precio}</div>
+                            <button class="btn-primary">Ver oferta</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleFav(btn) {
+            btn.classList.toggle('active');
+            // Aquí podrías guardar el ID del producto en un array de favoritos
+        }
+
+        // Permitir buscar con Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputBusqueda = document.getElementById('userInput');
+            inputBusqueda.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    ejecutarBusqueda();
+                }
+            });
+            
+            // Mostrar todo al cargar
+            ejecutarBusqueda();
+        });
     </script>
 </body>
 </html>
