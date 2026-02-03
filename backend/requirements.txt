@@ -1,0 +1,12 @@
+# API y Servidor
+fastapi
+uvicorn[standard]
+
+# Base de Datos
+sqlalchemy
+alembic
+psycopg2-binary
+
+# Utilidades
+python-dotenv
+pydantic
