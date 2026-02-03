@@ -33,7 +33,7 @@
             overflow-x: hidden;
         }
 
-        /* FONDO TECNOLÓGICO (Mantenido) */
+        /* FONDO TECNOLÓGICO */
         body::before {
             content: '';
             position: fixed;
@@ -120,7 +120,7 @@
             border-radius: 20px; overflow: hidden; position: relative; transition: 0.3s;
         }
 
-        .offer-image { height: 200px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .offer-image { height: 200px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         
         .fav-btn {
             position: absolute; top: 15px; right: 15px;
@@ -135,10 +135,12 @@
         .price-current { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
 
         .btn-primary {
-            width: 100%; padding: 12px; background: transparent;
+            display: block; width: 100%; padding: 12px; background: transparent;
             border: 1px solid var(--primary); color: var(--primary);
             border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 15px;
+            text-align: center; text-decoration: none; transition: 0.2s;
         }
+        .btn-primary:hover { background: var(--primary); color: #030a1e; }
     </style>
 </head>
 <body>
@@ -164,83 +166,90 @@
         </section>
 
         <div class="container">
-            <h2 id="result-title" style="margin-bottom: 30px;"> Ofertas destacadas</h2>
+            <h2 id="result-title" style="margin-bottom: 30px;">🔥 Ofertas destacadas</h2>
             <div class="offers-grid" id="grid-productos">
                 </div>
         </div>
     </div>
 
     <script>
-        // "Base de Datos" temporal
-        const productos = [
-            { id: 1, nombre: "iPhone 13 128GB", tienda: "TechStore", precio: "5.750.000", emoji: "📱", color: "#0066FF", cat: "celular" },
-            { id: 2, nombre: "Samsung S23 Ultra", tienda: "SmartShop", precio: "7.200.000", emoji: "📱", color: "#7C3AED", cat: "celular" },
-            { id: 3, nombre: "AirPods Pro 2", tienda: "AudioLux", precio: "1.490.000", emoji: "🎧", color: "#10B981", cat: "audio" },
-            { id: 4, nombre: "Xiaomi Redmi 12", tienda: "EcoTech", precio: "1.250.000", emoji: "📱", color: "#FF5733", cat: "celular" },
-            { id: 5, nombre: "Sony WH-1000XM5", tienda: "AudioLux", precio: "2.800.000", emoji: "🎧", color: "#00D9FF", cat: "audio" }
-        ];
+        // URL de tu Backend (FastAPI)
+        // Asegúrate de que uvicorn esté corriendo en el puerto 8000
+        const API_URL = "http://127.0.0.1:8000";
 
-        function ejecutarBusqueda() {
-            const input = document.getElementById('userInput').value.trim().toLowerCase();
+        // Función principal de búsqueda (ASYNC para esperar al backend)
+        async function ejecutarBusqueda() {
+            const input = document.getElementById('userInput').value.trim();
             const grid = document.getElementById('grid-productos');
             const title = document.getElementById('result-title');
-            grid.innerHTML = ""; // Limpiar pantalla
+            
+            // Mostrar estado de "Cargando..."
+            grid.innerHTML = "<p style='color: var(--primary); text-align:center; grid-column: 1/-1;'>📡 Conectando con el servidor...</p>";
 
-            // Si no hay búsqueda, mostrar todo
-            if (input === "") {
-                mostrarProductos(productos);
-                title.textContent = "🔥 Ofertas destacadas";
-                return;
-            }
-
-            // Buscar productos que coincidan con la búsqueda
-            const filtrados = productos.filter(p => {
-                // Buscar en el nombre del producto
-                const nombreCoincide = p.nombre.toLowerCase().includes(input);
-                
-                // Buscar en la categoría
-                const categoriaCoincide = p.cat.toLowerCase().includes(input);
-                
-                // Buscar en la tienda
-                const tiendaCoincide = p.tienda.toLowerCase().includes(input);
-                
-                // También buscar variaciones de palabras comunes
-                let palabraRelacionada = false;
-                if (input.includes("celular") || input.includes("cel") || input.includes("telefono") || input.includes("phone")) {
-                    palabraRelacionada = p.cat === "celular";
+            try {
+                // 1. Construir la URL con el parámetro de búsqueda si existe
+                let url = `${API_URL}/products/`;
+                if (input) {
+                    url += `?search=${input}`;
                 }
-                if (input.includes("audio") || input.includes("audifonos") || input.includes("auricular") || input.includes("headphone")) {
-                    palabraRelacionada = p.cat === "audio";
-                }
+
+                // 2. Hacer la petición al Backend
+                const response = await fetch(url);
                 
-                return nombreCoincide || categoriaCoincide || tiendaCoincide || palabraRelacionada;
-            });
+                if (!response.ok) throw new Error("Error al conectar con el servidor");
 
-            if (filtrados.length === 0) {
-                grid.innerHTML = "<p style='color: var(--text-dim); font-size: 1.2rem;'>No se encontraron resultados para '" + input + "'. Intenta con otra búsqueda.</p>";
-                title.textContent = "❌ Sin resultados";
-                return;
+                const data = await response.json();
+
+                // 3. Verificar si hay resultados
+                if (data.length === 0) {
+                    grid.innerHTML = "<p style='color: var(--text-dim); font-size: 1.2rem; grid-column: 1/-1; text-align:center;'>No se encontraron productos. ¡Prueba a correr el 'seeder.py' en el backend!</p>";
+                    title.textContent = "❌ Sin resultados";
+                    return;
+                }
+
+                // 4. Mostrar los productos
+                mostrarProductos(data);
+                title.textContent = input ? `🔍 Resultados para: ${input}` : "🔥 Ofertas del Backend";
+
+            } catch (error) {
+                console.error("Error:", error);
+                grid.innerHTML = "<p style='color: #ff4d4d; grid-column: 1/-1; text-align:center;'>⚠️ Error: No se pudo conectar al Backend.<br>Verifique que 'uvicorn main:app' esté corriendo.</p>";
             }
-
-            mostrarProductos(filtrados);
-            title.textContent = "🔍 Resultados para: " + input + " (" + filtrados.length + ")";
         }
 
         function mostrarProductos(listaProductos) {
             const grid = document.getElementById('grid-productos');
+            grid.innerHTML = ""; // Limpiar pantalla antes de pintar
             
             listaProductos.forEach(p => {
+                // LÓGICA DE MAPEO (Adaptamos tus datos del Backend al Frontend)
+                
+                // 1. Obtener el precio más reciente del historial
+                // Si el array prices tiene datos, tomamos el último. Si no, 0.
+                const ultimoPrecioObj = p.prices.length > 0 ? p.prices[p.prices.length - 1] : null;
+                const precio = ultimoPrecioObj ? ultimoPrecioObj.amount.toLocaleString() : "---";
+                const tienda = ultimoPrecioObj ? ultimoPrecioObj.store : "Varios";
+
+                // 2. Manejo de imagen (Si es null o no es URL, usamos un emoji por defecto)
+                let contenidoImagen;
+                if (p.image_url && p.image_url.startsWith('http')) {
+                    contenidoImagen = `<img src="${p.image_url}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                } else {
+                    contenidoImagen = `<span style="font-size: 4rem;">📦</span>`;
+                }
+
+                // 3. Pintar la tarjeta HTML
                 grid.innerHTML += `
                     <div class="offer-card">
-                        <div class="offer-image" style="background: linear-gradient(45deg, ${p.color}, #00D9FF)">
+                        <div class="offer-image" style="background: linear-gradient(45deg, #030a1e, #00D9FF);">
                             <button class="fav-btn" onclick="toggleFav(this)">❤</button>
-                            <span style="font-size: 4rem;">${p.emoji}</span>
+                            ${contenidoImagen}
                         </div>
                         <div class="offer-content">
-                            <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold;">${p.tienda}</div>
-                            <h3 class="offer-title">${p.nombre}</h3>
-                            <div class="price-current">₲${p.precio}</div>
-                            <button class="btn-primary">Ver oferta</button>
+                            <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; text-transform: uppercase;">${tienda}</div>
+                            <h3 class="offer-title">${p.name}</h3>
+                            <div class="price-current">$${precio}</div>
+                            <a href="${p.url}" target="_blank" class="btn-primary">Ver oferta</a>
                         </div>
                     </div>
                 `;
@@ -249,19 +258,18 @@
 
         function toggleFav(btn) {
             btn.classList.toggle('active');
-            // Aquí podrías guardar el ID del producto en un array de favoritos
+            // Aquí conectarás la lógica de favoritos en el futuro
         }
 
-        // Permitir buscar con Enter
+        // Eventos al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
+            // Permitir buscar con Enter
             const inputBusqueda = document.getElementById('userInput');
             inputBusqueda.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    ejecutarBusqueda();
-                }
+                if (e.key === 'Enter') ejecutarBusqueda();
             });
             
-            // Mostrar todo al cargar
+            // Carga inicial automática (Trae todos los productos)
             ejecutarBusqueda();
         });
     </script>
