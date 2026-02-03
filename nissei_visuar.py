@@ -164,89 +164,85 @@ def scraper_nissei():
 # ======================================================
 # SCRAPER DE SHOPPING CHINA - ELECTRÓNICOS
 # ======================================================
-
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
-def scraper_visuar():
-    """Extrae productos de Visuar usando Selenium"""
-    print("🔍 Buscando en Visuar con Selenium...")
-    productos = []
+# ==========================
+# CONFIGURACIÓN DEL NAVEGADOR
+# ==========================
+chrome_options = Options()
+chrome_options.add_argument("--headless")  # Ejecuta Chrome sin abrir ventana
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument("--no-sandbox")
 
+# Cambia la ruta según tu chromedriver
+driver_path = r"C:\Users\learn\OneDrive\Desktop\proyectp_hakaton\Team-404\chromedriver.exe"
+service = Service(driver_path)
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+# ==========================
+# URL DE ALEX
+# ==========================
+url_alex = "https://www.alex.com.py/categoria/1/celulares-y-accesorios?marcas=&categorias=&categorias_top="
+driver.get(url_alex)
+
+# ==========================
+# ESPERAR QUE CARGUEN PRODUCTOS
+# ==========================
+wait = WebDriverWait(driver, 15)  # Espera máxima 15s
+try:
+    wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.producto_item")))
+except:
+    print("❌ No se cargaron productos en Alex")
+    driver.quit()
+    exit()
+
+# ==========================
+# EXTRAER PRODUCTOS
+# ==========================
+productos = driver.find_elements(By.CSS_SELECTOR, "div.producto_item")
+lista_productos = []
+
+for producto in productos:
     try:
-        # Configuración de Selenium
-        options = Options()
-        options.add_argument("--headless")  # Ejecuta sin abrir ventana
-        options.add_argument("--disable-gpu")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--window-size=1920,1080")
+        titulo = producto.find_element(By.CSS_SELECTOR, "h2.producto_nombre a").text.strip()
+        link = producto.find_element(By.CSS_SELECTOR, "h2.producto_nombre a").get_attribute("href")
+        precio = producto.find_element(By.CSS_SELECTOR, "span.precio").text.strip()
+        
+        lista_productos.append({
+            "titulo": titulo,
+            "link": link,
+            "precio": precio
+        })
+    except:
+        # Saltar productos sin precio o título
+        continue
 
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+driver.quit()
 
-        # URL de categoría de celulares/electrónica
-        url = "https://visuar.com.py/categoria/celulares/"  # Cambiar según categoría
-        driver.get(url)
-        time.sleep(3)  # Espera inicial para que cargue la página
+# ==========================
+# MOSTRAR RESULTADOS
+# ==========================
+if lista_productos:
+    print(f"✓ Productos encontrados: {len(productos)}")
+    print(f"✓ Extraídos {len(lista_productos)} productos válidos\n")
+    
+    print("🔥 MEJORES OFERTAS (Ordenadas por precio) 🔥")
+    for i, p in enumerate(lista_productos, 1):
+        print(f"#{i} | Alex")
+        print(f"📱 {p['titulo']}")
+        print(f"💰 Precio: {p['precio']}")
+        print(f"🔗 {p['link']}")
+        print("----------------------------------------------------------------------")
+else:
+    print("❌ No se encontraron productos.")
 
-        # Scroll para cargar productos dinámicos
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)
 
-        # Buscar productos
-        # Visuar usa 'div' con clase 'product-block' para cada producto
-        items = driver.find_elements(By.CSS_SELECTOR, "div.product-block")
-        print(f"   ✓ Productos encontrados: {len(items)}")
-
-        for item in items:
-            try:
-                # Título
-                titulo_tag = item.find_element(By.CSS_SELECTOR, "h3.product-title a")
-                titulo = titulo_tag.text.strip()
-                link = titulo_tag.get_attribute("href")
-
-                # Precio actual
-                try:
-                    precio_tag = item.find_element(By.CSS_SELECTOR, "span.price")
-                    precio_texto = precio_tag.text.strip()
-                    precio_numero = limpiar_precio(precio_texto)
-                except:
-                    precio_texto = None
-                    precio_numero = None
-
-                if not precio_numero:
-                    continue
-
-                # Precio anterior (opcional)
-                try:
-                    precio_antes_tag = item.find_element(By.CSS_SELECTOR, "span.old-price")
-                    precio_antes_texto = precio_antes_tag.text.strip()
-                except:
-                    precio_antes_texto = None
-
-                productos.append({
-                    "tienda": "Visuar",
-                    "titulo": titulo,
-                    "precio_antes": precio_antes_texto,
-                    "precio_ahora": precio_texto,
-                    "precio_numero": precio_numero,
-                    "link": link
-                })
-            except:
-                continue
-
-        driver.quit()
-        print(f"   ✓ Extraídos {len(productos)} productos válidos\n")
-
-    except Exception as e:
-        print(f"   ✗ Error Visuar: {e}\n")
-        if 'driver' in locals():
-            driver.quit()
-
-    return productos
 
 
 
@@ -316,7 +312,7 @@ def main():
     todos_productos.extend(productos_nissei)
     time.sleep(2)
 
-    productos_china = scraper_visuar_selenium()
+    productos_china = scrap()
     todos_productos.extend(productos_china)
 
     mostrar_ofertas(todos_productos)

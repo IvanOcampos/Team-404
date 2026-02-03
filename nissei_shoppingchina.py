@@ -1,14 +1,15 @@
 """
 WEB SCRAPER - Comparador de Precios
 Nissei: requests + BeautifulSoup
-sho: Selenium con webdriver-manager (sin necesidad de descargar ChromeDriver)
+Shopping China: Selenium con webdriver-manager
 """
 
 import requests
 from bs4 import BeautifulSoup
 import time
+import random
 
-# Para SmartHouse necesitamos Selenium
+# Para Shopping China necesitamos Selenium
 try:
     from selenium import webdriver
     from selenium.webdriver.common.by import By
@@ -57,22 +58,38 @@ def limpiar_precio(texto_precio):
 
 
 # ======================================================
-# SCRAPER DE NISSEI
+# SCRAPER DE NISSEI - MEJORADO CON HEADERS COMPLETOS
 # ======================================================
 
 def scraper_nissei():
-    """Extrae productos de Nissei"""
+    """Extrae productos de Nissei con headers mejorados para evitar 403"""
     print("🔍 Buscando en Nissei...")
     productos = []
     
     url = "https://nissei.com/py/electronica/celulares-tabletas/celulares-accesorios/telefonos-inteligentes"
     
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        # Headers más completos para evitar detección de bot
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Cache-Control": "max-age=0",
+        }
+        
+        # Hacer request con delay aleatorio
+        time.sleep(random.uniform(1, 3))
         response = requests.get(url, headers=headers, timeout=30)
         
         if response.status_code != 200:
             print(f"   ⚠️ Error al conectar con Nissei (código {response.status_code})")
+            print(f"   💡 Tip: Nissei puede estar bloqueando scrapers. Intenta de nuevo más tarde.\n")
             return productos
         
         soup = BeautifulSoup(response.text, "html.parser")
@@ -158,20 +175,16 @@ def scraper_nissei():
     return productos
 
 # ======================================================
-# SCRAPER DE SMARTHOUSE - CON SELENIUM + WEBDRIVER-MANAGER
-# ======================================================
-
-# ======================================================
-# SCRAPER DE SHOPPING CHINA - ELECTRÓNICOS
+# SCRAPER DE SHOPPING CHINA - CORREGIDO
 # ======================================================
 
 def scraper_shopping_china():
-    """Scraper Shopping China - precios reales desde ficha de producto"""
+    """Scraper Shopping China - con título correcto y precio en bruto"""
     if not SELENIUM_DISPONIBLE:
         print("⚠️ Selenium no disponible")
         return []
 
-    print("🔍 Buscando en Shopping China (Selenium real)...")
+    print("🔍 Buscando en Shopping China (Selenium)...")
     productos = []
 
     base_url = "https://www.shoppingchina.com.py"
@@ -182,52 +195,79 @@ def scraper_shopping_china():
         options = Options()
         options.add_argument("--start-maximized")
         options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
 
+        print("   📥 Iniciando Chrome...")
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
 
         driver.get(url)
 
         wait = WebDriverWait(driver, 20)
-        wait.until(
-            EC.presence_of_element_located((By.CLASS_NAME, "text-uppercase"))
-        )
+        # Esperar a que cargue la página
+        wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        time.sleep(3)
 
-        # Scroll
+        # Scroll para cargar productos
         for _ in range(4):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
 
-        items = driver.find_elements(
-            By.XPATH, "//a[contains(@href, '/producto/')]"
-        )
-
+        # Obtener todos los links de productos
+        items = driver.find_elements(By.XPATH, "//a[contains(@href, '/producto/')]")
         links = list(dict.fromkeys([i.get_attribute("href") for i in items]))
+        
         print(f"   ✓ Productos detectados: {len(links)}")
 
-        for link in links[:40]:  # LIMITA para no matar tiempo
+        # Visitar cada producto
+        for idx, link in enumerate(links[:30], 1):  # Limitar a 30 para no tardar mucho
             try:
+                print(f"   📦 Procesando {idx}/{min(30, len(links))}...", end='\r')
                 driver.get(link)
                 time.sleep(1.5)
 
-                titulo = driver.find_element(
-                    By.CLASS_NAME, "text-uppercase"
-                ).text.strip()
+                # TÍTULO CORRECTO - buscar h1 o el título principal
+                titulo = None
+                try:
+                    # Intento 1: h1 con clase text-uppercase
+                    titulo_elem = driver.find_element(By.CSS_SELECTOR, "h1.text-uppercase")
+                    titulo = titulo_elem.text.strip()
+                except:
+                    try:
+                        # Intento 2: cualquier h1
+                        titulo_elem = driver.find_element(By.TAG_NAME, "h1")
+                        titulo = titulo_elem.text.strip()
+                    except:
+                        pass
+                
+                # Si el título es "INICIO" o está vacío, buscar en otro lugar
+                if not titulo or titulo.upper() == "INICIO":
+                    try:
+                        # Buscar en el meta title o cualquier otro elemento
+                        titulo = driver.title.split("|")[0].strip()
+                        if not titulo or "Shopping China" in titulo:
+                            titulo = "Producto sin nombre"
+                    except:
+                        titulo = "Producto sin nombre"
 
-                precio_actual_texto = driver.find_element(
-                    By.CLASS_NAME, "sc-text-danger"
-                ).text.strip()
+                # PRECIO ACTUAL (en rojo - sc-text-danger)
+                try:
+                    precio_elem = driver.find_element(By.CLASS_NAME, "sc-text-danger")
+                    precio_actual_texto = precio_elem.text.strip()
+                except:
+                    continue  # Si no hay precio, skip
 
                 precio_actual = limpiar_precio(precio_actual_texto)
                 if not precio_actual:
                     continue
 
+                # PRECIO ANTERIOR (en azul - sc-text-primary)
+                precio_antes_texto = None
                 try:
-                    precio_antes_texto = driver.find_element(
-                        By.CLASS_NAME, "sc-text-primary"
-                    ).text.strip()
+                    precio_antes_elem = driver.find_element(By.CLASS_NAME, "sc-text-primary")
+                    precio_antes_texto = precio_antes_elem.text.strip()
                 except:
-                    precio_antes_texto = None
+                    pass
 
                 productos.append({
                     "tienda": "Shopping China",
@@ -238,13 +278,15 @@ def scraper_shopping_china():
                     "link": link
                 })
 
-            except Exception:
+            except Exception as e:
                 continue
 
-        print(f"   ✓ Extraídos {len(productos)} productos válidos\n")
+        print(f"\n   ✓ Extraídos {len(productos)} productos válidos\n")
 
     except Exception as e:
-        print(f"   ✗ Error Shopping China: {e}")
+        print(f"   ✗ Error Shopping China: {e}\n")
+        import traceback
+        traceback.print_exc()
     finally:
         if driver:
             driver.quit()
@@ -292,10 +334,10 @@ def mostrar_ofertas(productos):
     print("="*70)
     
     nissei_count = sum(1 for p in productos if p['tienda'] == 'Nissei')
-    smarthouse_count = sum(1 for p in productos if p['tienda'] == 'SmartHouse')
+    shopping_count = sum(1 for p in productos if p['tienda'] == 'Shopping China')
     
     print(f"Nissei: {nissei_count} productos")
-    print(f"SmartHouse: {smarthouse_count} productos")
+    print(f"Shopping China: {shopping_count} productos")
     print(f"Total: {len(productos)} productos")
     
     precios = [p['precio_numero'] for p in productos]
@@ -313,13 +355,16 @@ def mostrar_ofertas(productos):
 def main():
     todos_productos = []
 
+    # Scrapear Nissei
     productos_nissei = scraper_nissei()
     todos_productos.extend(productos_nissei)
     time.sleep(2)
 
+    # Scrapear Shopping China
     productos_china = scraper_shopping_china()
     todos_productos.extend(productos_china)
 
+    # Mostrar resultados
     mostrar_ofertas(todos_productos)
     print("✅ Scraping completado!\n")
 
