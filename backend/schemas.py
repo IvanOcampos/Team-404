@@ -1,20 +1,38 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
 
-# Esto es lo que recibes del Scraper (Input)
+# Esquemas internos para PRECIOS
+class PriceBase(BaseModel):
+    amount: float
+    store: str
+
+class PriceResponse(PriceBase):
+    id: int
+    captured_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# Esquemas para PRODUCTOS 
+
+# Lo que recibimos del Scraper (Input)
 class ProductCreate(BaseModel):
     name: str
-    price: float
-    store: str
     url: str
     image_url: Optional[str] = None
+    initial_price: float  # Dato crucial para crear el primer registro
+    store: str            # Tienda donde se encontró
 
-# Esto es lo que devuelves al Frontend (Output)
-# Incluye el ID y la fecha, que los genera la DB, no el usuario.
-class ProductResponse(ProductCreate):
+# Lo que enviamos al Frontend (Output)
+class ProductResponse(BaseModel):
     id: int
-    updated_at: datetime
+    name: str
+    url: str
+    image_url: Optional[str] = None
+    created_at: datetime
+    # El frontend recibirá una lista con todo el historial de precios
+    prices: List[PriceResponse] = []
 
     class Config:
-        from_attributes = True # Antes se llamaba orm_mode = True
+        from_attributes = True
