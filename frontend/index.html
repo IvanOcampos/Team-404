@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cazador de Ofertas - Estilo Dark Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066ff;
+            --bg-dark: #030a1e;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #ffffff;
+            --text-dim: #b0b8d1;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        /* --- LÓGICA DE NAVEGACIÓN --- */
+        #screen-switch { display: none; }
+        #screen-switch:checked ~ #welcome-page { display: none; }
+        #search-page { display: none; }
+        #screen-switch:checked ~ #search-page { display: block; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--text-main);
+            background-color: var(--bg-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* FONDO TECNOLÓGICO (Mantenido) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle, rgba(0, 217, 255, 0.3) 1px, transparent 1px) 0 0 / 30px 30px,
+                linear-gradient(135deg, rgba(13, 31, 75, 0.9) 0%, rgba(3, 10, 30, 1) 100%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px);
+            z-index: -2;
+        }
+
+        /* PANTALLA BIENVENIDA */
+        #welcome-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .btn-enter {
+            background: var(--primary);
+            color: #030a1e;
+            padding: 20px 50px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: var(--font-display);
+            transition: 0.3s;
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.4);
+            margin-top: 30px;
+        }
+
+        /* PANTALLA BÚSQUEDA */
+        .navbar {
+            background: rgba(3, 10, 30, 0.7);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; justify-content: space-between; height: 70px;
+        }
+
+        .logo { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: #ffffff; }
+
+        .hero { max-width: 1400px; margin: 0 auto; padding: 60px 20px; text-align: center; }
+
+        .hero h1 {
+            font-family: var(--font-display); font-size: 3.5rem; font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #a0aec0 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .search-box {
+            max-width: 800px; margin: 30px auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; padding: 8px; display: flex; backdrop-filter: blur(10px);
+        }
+
+        .search-input {
+            flex: 1; background: transparent; border: none;
+            padding: 15px 20px; color: white; font-size: 1.1rem; outline: none;
+        }
+
+        .search-btn {
+            background: var(--primary); color: #030a1e; border: none;
+            padding: 0 30px; border-radius: 12px; font-weight: 700; cursor: pointer;
+        }
+
+        /* TARJETAS Y FAVORITOS */
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+
+        .offer-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px; overflow: hidden; position: relative; transition: 0.3s;
+        }
+
+        .offer-image { height: 200px; display: flex; align-items: center; justify-content: center; position: relative; }
+        
+        .fav-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(0,0,0,0.4); border: none; color: white;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            font-size: 1.2rem; transition: 0.3s; z-index: 5;
+        }
+        .fav-btn.active { color: #ff4d4d; background: white; }
+
+        .offer-content { padding: 20px; }
+        .offer-title { color: white; font-size: 1.2rem; margin-bottom: 10px; }
+        .price-current { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
+
+        .btn-primary {
+            width: 100%; padding: 12px; background: transparent;
+            border: 1px solid var(--primary); color: var(--primary);
+            border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <input type="checkbox" id="screen-switch">
+
+    <div id="welcome-page">
+        <h1 style="font-family: var(--font-display); font-size: 4rem; font-weight: 800;">Bienvenidos al mejor<br>cazador de ofertas</h1>
+        <label for="screen-switch" class="btn-enter">ENTRAR A BUSCAR</label>
+    </div>
+
+    <div id="search-page">
+        <nav class="navbar">
+            <div class="nav-container"><div class="logo">Cazador de Ofertas</div></div>
+        </nav>
+
+        <section class="hero">
+            <h1>¿Qué quieres encontrar hoy?</h1>
+            <div class="search-box">
+                <input type="text" id="userInput" class="search-input" placeholder="Busca 'celulares', 'iPhone', 'audio'...">
+                <button class="search-btn" onclick="ejecutarBusqueda()">Buscar 🔍</button>
+            </div>
+        </section>
+
+        <div class="container">
+            <h2 id="result-title" style="margin-bottom: 30px;"> Ofertas destacadas</h2>
+            <div class="offers-grid" id="grid-productos">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // "Base de Datos" temporal
+        const productos = [
+            { id: 1, nombre: "iPhone 13 128GB", tienda: "TechStore", precio: "5.750.000", emoji: "📱", color: "#0066FF", cat: "celular" },
+            { id: 2, nombre: "Samsung S23 Ultra", tienda: "SmartShop", precio: "7.200.000", emoji: "📱", color: "#7C3AED", cat: "celular" },
+            { id: 3, nombre: "AirPods Pro 2", tienda: "AudioLux", precio: "1.490.000", emoji: "🎧", color: "#10B981", cat: "audio" },
+            { id: 4, nombre: "Xiaomi Redmi 12", tienda: "EcoTech", precio: "1.250.000", emoji: "📱", color: "#FF5733", cat: "celular" },
+            { id: 5, nombre: "Sony WH-1000XM5", tienda: "AudioLux", precio: "2.800.000", emoji: "🎧", color: "#00D9FF", cat: "audio" }
+        ];
+
+        function ejecutarBusqueda() {
+            const input = document.getElementById('userInput').value.trim().toLowerCase();
+            const grid = document.getElementById('grid-productos');
+            const title = document.getElementById('result-title');
+            grid.innerHTML = ""; // Limpiar pantalla
+
+            // Si no hay búsqueda, mostrar todo
+            if (input === "") {
+                mostrarProductos(productos);
+                title.textContent = "🔥 Ofertas destacadas";
+                return;
+            }
+
+            // Buscar productos que coincidan con la búsqueda
+            const filtrados = productos.filter(p => {
+                // Buscar en el nombre del producto
+                const nombreCoincide = p.nombre.toLowerCase().includes(input);
+                
+                // Buscar en la categoría
+                const categoriaCoincide = p.cat.toLowerCase().includes(input);
+                
+                // Buscar en la tienda
+                const tiendaCoincide = p.tienda.toLowerCase().includes(input);
+                
+                // También buscar variaciones de palabras comunes
+                let palabraRelacionada = false;
+                if (input.includes("celular") || input.includes("cel") || input.includes("telefono") || input.includes("phone")) {
+                    palabraRelacionada = p.cat === "celular";
+                }
+                if (input.includes("audio") || input.includes("audifonos") || input.includes("auricular") || input.includes("headphone")) {
+                    palabraRelacionada = p.cat === "audio";
+                }
+                
+                return nombreCoincide || categoriaCoincide || tiendaCoincide || palabraRelacionada;
+            });
+
+            if (filtrados.length === 0) {
+                grid.innerHTML = "<p style='color: var(--text-dim); font-size: 1.2rem;'>No se encontraron resultados para '" + input + "'. Intenta con otra búsqueda.</p>";
+                title.textContent = "❌ Sin resultados";
+                return;
+            }
+
+            mostrarProductos(filtrados);
+            title.textContent = "🔍 Resultados para: " + input + " (" + filtrados.length + ")";
+        }
+
+        function mostrarProductos(listaProductos) {
+            const grid = document.getElementById('grid-productos');
+            
+            listaProductos.forEach(p => {
+                grid.innerHTML += `
+                    <div class="offer-card">
+                        <div class="offer-image" style="background: linear-gradient(45deg, ${p.color}, #00D9FF)">
+                            <button class="fav-btn" onclick="toggleFav(this)">❤</button>
+                            <span style="font-size: 4rem;">${p.emoji}</span>
+                        </div>
+                        <div class="offer-content">
+                            <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold;">${p.tienda}</div>
+                            <h3 class="offer-title">${p.nombre}</h3>
+                            <div class="price-current">₲${p.precio}</div>
+                            <button class="btn-primary">Ver oferta</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleFav(btn) {
+            btn.classList.toggle('active');
+            // Aquí podrías guardar el ID del producto en un array de favoritos
+        }
+
+        // Permitir buscar con Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputBusqueda = document.getElementById('userInput');
+            inputBusqueda.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    ejecutarBusqueda();
+                }
+            });
+            
+            // Mostrar todo al cargar
+            ejecutarBusqueda();
+        });
+    </script>
+</body>
+</html>
