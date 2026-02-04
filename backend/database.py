@@ -11,5 +11,5 @@ engine = create_engine(
 # Creamos la fábrica de sesiones
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Esta es la clase base de la que heredarán tus modelos
+# Clase para los modelos
 Base = declarative_base()

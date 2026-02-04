@@ -19,9 +19,7 @@ try:
 except ImportError:
     SELENIUM_DISPONIBLE = False
 
-# ======================================================
 # UTILIDADES
-# ======================================================
 def limpiar_precio(texto_precio):
     if not texto_precio: return None
     texto = str(texto_precio).strip().lower()
@@ -37,14 +35,13 @@ def limpiar_precio(texto_precio):
         return None
     except: return None
 
-# ======================================================
-# GUARDADO EN DB (Con Filtro Anti-Basura)
-# ======================================================
+
+# GUARDADO EN DB
 def enviar_al_backend(producto_data, origen="web"):
     if not producto_data['name'] or not producto_data['initial_price']: 
         return None
     
-    # --- FILTRO DE CALIDAD ---
+    # FILTRO DE CALIDAD
     nombre_lower = producto_data['name'].lower()
     
     # 1. Palabras prohibidas (botones capturados por error)
@@ -87,21 +84,19 @@ def enviar_al_backend(producto_data, origen="web"):
         return product_id
 
     except Exception as e:
-        print(f"   ❌ Error DB: {e}")
+        print(f" Error DB: {e}")
         db.rollback()
         return None
     finally:
         db.close()
 
-# ======================================================
 # BÚSQUEDA
-# ======================================================
 def buscar_productos_en_web(keyword, origen="web"):
     print(f"\n🔍 BÚSQUEDA ({origen}): '{keyword}'")
     found_ids = []
     q = quote_plus(keyword)
 
-    # 1. TIENDAS REQUESTS (Nissei y CellShop suelen ser estables)
+    # TIENDAS REQUESTS (Nissei y CellShop suelen ser estables)
     tiendas_fast = [
         {"nombre": "Nissei", "url": f"https://nissei.com/py/catalogsearch/result/?q={q}", "card": "li.product-item", "name": "a.product-item-link", "price": "[data-price-amount]", "img": "img.product-image-photo"},
         {"nombre": "CellShop", "url": f"https://cellshop.com.py/catalogsearch/result/?q={q}", "card": ".product-item-info", "name": ".product-item-link", "price": ".price", "img": "img"}
@@ -125,7 +120,7 @@ def buscar_productos_en_web(keyword, origen="web"):
                 except: continue
         except: pass
 
-    # 2. TIENDAS SELENIUM (Aquí estaba el problema)
+    # 2. TIENDAS SELENIUM
     if SELENIUM_DISPONIBLE:
         options = Options()
         options.add_argument("--headless=new") 
@@ -140,14 +135,14 @@ def buscar_productos_en_web(keyword, origen="web"):
 
             for t in tiendas_selenium:
                 driver.get(t['url'])
-                time.sleep(3) # Espera vital
+                time.sleep(3)
                 
                 # Buscamos las tarjetas
                 items = driver.find_elements(By.CSS_SELECTOR, "article.product-miniature, div.product-grid-item, .product-type-simple, .product-small")
                 
                 for item in items[:6]:
                     try:
-                        # --- EXTRACCIÓN DEL PRECIO ---
+                    
                         # Buscamos números en todo el texto del item
                         texto_completo = item.text.split('\n')
                         precio = None
@@ -157,12 +152,12 @@ def buscar_productos_en_web(keyword, origen="web"):
                                 precio = p; break
                         if not precio: continue
 
-                        # --- EXTRACCIÓN DEL TÍTULO Y LINK (ESPECÍFICA POR TIENDA) ---
+                        # EXTRACCIÓN DEL TÍTULO Y LINK (ESPECÍFICA POR TIENDA)
                         titulo = ""
                         link = ""
 
                         if t['nombre'] == "TopTechnology":
-                            # TopTech usa: <h2 class="woocommerce-loop-product__title">Nombre</h2>
+                            # TopTech usa
                             try:
                                 # Intento 1: Selector específico de WooCommerce
                                 elem = item.find_element(By.CSS_SELECTOR, ".woocommerce-loop-product__title, h2.product-title")
@@ -176,7 +171,7 @@ def buscar_productos_en_web(keyword, origen="web"):
                                 link = tag_a.get_attribute("href")
 
                         elif t['nombre'] == "TiendaMovil":
-                            # TiendaMovil usa: <h3 class="product-title"><a href="...">Nombre</a></h3>
+                            # TiendaMovil
                             try:
                                 # Buscamos DIRECTAMENTE el título dentro de h3.product-title
                                 title_container = item.find_element(By.CSS_SELECTOR, "h3.product-title, .product-title")
@@ -198,12 +193,12 @@ def buscar_productos_en_web(keyword, origen="web"):
                         # Limpieza final del título por si acaso
                         if not titulo or len(titulo) < 3: continue
 
-                        # --- IMAGEN ---
+                        # IMAGEN
                         img = None
                         try: img = item.find_element(By.TAG_NAME, "img").get_attribute("src")
                         except: pass
                         
-                        # --- ENVIAR ---
+                        # ENVIAR
                         pid = enviar_al_backend({"name": titulo, "url": link, "initial_price": precio, "store": t['nombre'], "image_url": img}, origen)
                         if pid and pid not in found_ids: found_ids.append(pid)
 
@@ -214,5 +209,5 @@ def buscar_productos_en_web(keyword, origen="web"):
         finally: 
             if 'driver' in locals(): driver.quit()
     
-    print(f"✅ Búsqueda finalizada. Encontrados: {len(found_ids)}")
+    print(f"Búsqueda finalizada. Encontrados: {len(found_ids)}")
     return found_ids
