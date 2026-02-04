@@ -11,6 +11,7 @@
 
     <style>
         :root {
+            /* TEMA OSCURO (Por defecto) */
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --primary: #3b82f6;
@@ -18,6 +19,25 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --footer-bg: #020617;
+            --input-bg: rgba(30, 41, 59, 0.9);
+            --btn-sec-bg: rgba(255, 255, 255, 0.03);
+            --chart-grid: #334155;
+        }
+
+        /* TEMA CLARO */
+        [data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --primary: #2563eb;
+            --accent: #0891b2;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --glass-border: 1px solid rgba(0, 0, 0, 0.1);
+            --footer-bg: #e2e8f0;
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --btn-sec-bg: rgba(0, 0, 0, 0.05);
+            --chart-grid: #cbd5e1;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -25,22 +45,25 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
+            /* Gradiente ajustado para funcionar en ambos temas */
             background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
                               radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
             background-attachment: fixed;
             min-height: 100vh;
             display: flex; flex-direction: column;
             overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* --- SIDEBAR (MENÚ LATERAL) --- */
         .sidebar {
             position: fixed; top: 0; left: -280px; width: 280px; height: 100vh;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
+            background: var(--bg-color); /* Adaptable */
+            backdrop-filter: blur(15px);
             border-right: var(--glass-border); z-index: 1000;
             transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 2rem; display: flex; flex-direction: column;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.2);
         }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
@@ -67,12 +90,42 @@
             backdrop-filter: blur(10px);
             position: sticky; top: 0; z-index: 50;
             border-bottom: var(--glass-border);
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(var(--bg-color), 0.8); /* Transparencia */
+            transition: background 0.3s ease, border 0.3s ease;
         }
         .nav-left { display: flex; align-items: center; gap: 20px; }
-        .menu-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .nav-right { display: flex; align-items: center; gap: 15px; } /* Contenedor derecho */
+
+        .menu-btn { background: none; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
         .menu-btn:hover { color: var(--primary); transform: scale(1.1); }
         .logo { font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; color: transparent; display: flex; align-items: center; gap: 10px; }
+
+        /* Botón de Tema */
+        .theme-toggle-btn {
+            background: var(--btn-sec-bg);
+            border: var(--glass-border);
+            color: var(--text-main);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+        .theme-toggle-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: rotate(15deg);
+        }
+
+        .version-badge {
+            font-size: 0.85rem; 
+            background: var(--btn-sec-bg); 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+            color: var(--text-muted);
+            border: var(--glass-border);
+        }
 
         /* --- VISTAS --- */
         .view-section { display: none; animation: fadeIn 0.5s ease; }
@@ -81,15 +134,15 @@
 
         /* --- ESTILOS COMUNES --- */
         .hero { text-align: center; padding: 5rem 1rem 3rem; }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; color: var(--text-main); }
         .hero p { color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2.5rem; }
 
         .search-container { max-width: 650px; margin: 0 auto; position: relative; }
         .search-input {
             width: 100%; padding: 1.2rem 1.5rem; padding-right: 4rem;
-            border-radius: 50px; border: none; background: rgba(30, 41, 59, 0.9);
-            color: white; font-size: 1.1rem; border: var(--glass-border);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: 0.3s;
+            border-radius: 50px; border: none; background: var(--input-bg);
+            color: var(--text-main); font-size: 1.1rem; border: var(--glass-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: 0.3s;
         }
         .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
         .search-btn {
@@ -101,50 +154,98 @@
         .search-btn:hover { background: var(--accent); transform: translateY(-50%) scale(1.1); }
 
         .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; padding: 2rem 5%; max-width: 1200px; margin: 0 auto 4rem; }
-        .feature-item { text-align: center; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: var(--glass-border); transition: 0.3s; }
-        .feature-item:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); }
+        .feature-item { text-align: center; padding: 2rem; background: var(--card-bg); border-radius: 16px; border: var(--glass-border); transition: 0.3s; }
+        .feature-item:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .feature-icon { font-size: 2rem; color: var(--accent); margin-bottom: 1rem; }
+        .feature-title { color: var(--text-main); font-weight: 600; margin-bottom: 0.5rem; }
+        .feature-desc { color: var(--text-muted); }
 
         .container { padding: 2rem 5%; max-width: 1400px; margin: 0 auto; flex: 1; width: 100%; }
         .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+        .section-header h2 { color: var(--text-main); }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
 
         .card { background: var(--card-bg); border-radius: 16px; overflow: hidden; border: var(--glass-border); transition: 0.3s; position: relative; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
-        .card:hover { transform: translateY(-7px); box-shadow: 0 15px 35px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.3); }
-        .card-img-container { height: 220px; padding: 1.5rem; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%); position: relative; }
+        .card:hover { transform: translateY(-7px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); border-color: var(--primary); }
+        .card-img-container { height: 220px; padding: 1.5rem; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, var(--btn-sec-bg) 0%, rgba(0,0,0,0) 70%); position: relative; }
         .card-img { max-height: 100%; max-width: 100%; object-fit: contain; }
         .store-badge { position: absolute; top: 12px; right: 12px; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; background: rgba(15, 23, 42, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); }
         .card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
         .current-price { font-size: 1.4rem; font-weight: 800; color: var(--text-main); }
+        .card-title { color: var(--text-main); }
         
         .actions { margin-top: 1.5rem; display: flex; gap: 10px; }
         .btn { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-main { background: var(--primary); color: white; }
         .btn-main:hover { background: #2563eb; }
-        .btn-sec { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); }
-        .btn-sec:hover { background: rgba(255,255,255,0.1); }
+        .btn-sec { background: var(--btn-sec-bg); color: var(--text-main); border: var(--glass-border); }
+        .btn-sec:hover { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); }
 
         /* --- TIENDAS --- */
         .stores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2rem; padding-bottom: 4rem; }
         .store-card { background: var(--card-bg); padding: 2rem; border-radius: 16px; border: var(--glass-border); text-align: center; transition: 0.3s; cursor: pointer; }
         .store-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2); }
-        .store-logo { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .store-logo { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .store-logo img { width: 90%; }
-        .store-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .store-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); }
         .store-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
 
         /* --- TEAM --- */
-        .team-section { padding: 4rem 5%; background: rgba(0,0,0,0.2); border-top: var(--glass-border); margin-top: 4rem; text-align: center; }
+        .team-section { padding: 4rem 5%; background: rgba(0,0,0,0.05); border-top: var(--glass-border); margin-top: 4rem; text-align: center; }
         .team-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 3rem; }
-        .team-card { background: var(--card-bg); padding: 2rem; border-radius: 16px; border: var(--glass-border); width: 200px; }
-        .team-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: 700; }
+        
+        .team-card { 
+            background: var(--card-bg); 
+            padding: 2rem; 
+            border-radius: 16px; 
+            border: var(--glass-border); 
+            width: 220px; 
+            text-decoration: none; 
+            display: flex; flex-direction: column; align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative; overflow: hidden;
+        }
+        .team-card:hover { transform: translateY(-10px); background: rgba(30, 41, 59, 0.9); border-color: var(--primary); box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5); }
+        [data-theme="light"] .team-card:hover { background: white; }
 
-        footer { background: #020617; padding: 3rem 5%; border-top: 1px solid #1e293b; color: var(--text-muted); margin-top: auto; }
+        .team-avatar { 
+            width: 90px; height: 90px; 
+            background: linear-gradient(135deg, var(--primary), var(--accent)); 
+            border-radius: 50%; margin: 0 auto 1rem; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2rem; color: white; font-weight: 700;
+            border: 3px solid transparent; transition: 0.3s; object-fit: cover;
+        }
+        .team-card:hover .team-avatar { border-color: var(--accent); transform: scale(1.05); }
+        .team-name { color: var(--text-main); font-weight: 700; margin-bottom: 5px; font-size: 1.1rem; transition: 0.3s; }
+        .team-card:hover .team-name { color: var(--primary); }
+        .team-role { color: var(--text-muted); font-size: 0.85rem; font-weight: 400; }
+
+        /* --- FOOTER --- */
+        footer { background: var(--footer-bg); padding: 3rem 5%; border-top: 1px solid var(--glass-border); color: var(--text-muted); margin-top: auto; transition: background 0.3s; }
         .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
-        .copyright { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #1e293b; }
+        .copyright { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--glass-border); }
+
+        .footer-links, .team-list { list-style: none; padding: 0; }
+        .footer-links li, .team-list li { margin-bottom: 8px; }
+        .footer-links a, .team-list a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 15px;
+            background: var(--btn-sec-bg);
+            border: var(--glass-border); border-radius: 10px;
+            text-decoration: none; color: var(--text-muted);
+            font-size: 0.95rem; transition: all 0.3s ease;
+        }
+        .footer-links a:hover, .team-list a:hover {
+            background: rgba(59, 130, 246, 0.15); border-color: var(--primary);
+            color: var(--text-main); transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+        .footer-links a i, .team-list a i { color: var(--primary); transition: 0.3s; }
+        .footer-links a:hover i, .team-list a:hover i { color: var(--accent); }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #1e293b; width: 90%; max-width: 800px; border-radius: 20px; padding: 2.5rem; border: var(--glass-border); position: relative; }
+        .modal-content { background: var(--bg-color); width: 90%; max-width: 800px; border-radius: 20px; padding: 2.5rem; border: var(--glass-border); position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .close-btn { position: absolute; top: 20px; right: 25px; background: none; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
         
         .status-msg { grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted); font-size: 1.2rem; }
@@ -169,7 +270,7 @@
             </li>
         </ul>
         <div style="margin-top: auto; padding-top: 2rem; border-top: var(--glass-border); color: var(--text-muted); font-size: 0.8rem; text-align: center;">
-            v2.4 Beta
+            v2.5
         </div>
     </div>
     <div class="overlay-menu" id="overlayMenu" onclick="toggleMenu()"></div>
@@ -179,7 +280,13 @@
             <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
             <div class="logo"><i class="fa-solid fa-bolt"></i> OfferHunt</div>
         </div>
-        <div style="font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px;">v2.4</div>
+        
+        <div class="nav-right">
+            <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" title="Cambiar Tema">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <div class="version-badge">v2.5</div>
+        </div>
     </nav>
 
     <div id="view-inicio" class="view-section active-view">
@@ -193,9 +300,21 @@
         </section>
 
         <section class="features">
-            <div class="feature-item"><div class="feature-icon"><i class="fa-solid fa-robot"></i></div><div class="feature-title">Rastreo Automático</div><div class="feature-desc">Escaneo en tiempo real de múltiples e-commerce.</div></div>
-            <div class="feature-item"><div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div><div class="feature-title">Historial de Precios</div><div class="feature-desc">Detecta bajadas de precio al instante.</div></div>
-            <div class="feature-item"><div class="feature-icon"><i class="fa-solid fa-check-circle"></i></div><div class="feature-title">Datos Reales</div><div class="feature-desc">Información directa de la fuente.</div></div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
+                <h3 class="feature-title">Rastreo Automático</h3>
+                <div class="feature-desc">Escaneo en tiempo real de múltiples e-commerce.</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <h3 class="feature-title">Historial de Precios</h3>
+                <div class="feature-desc">Detecta bajadas de precio al instante.</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-check-circle"></i></div>
+                <h3 class="feature-title">Datos Reales</h3>
+                <div class="feature-desc">Información directa de la fuente.</div>
+            </div>
         </section>
 
         <div class="container">
@@ -271,7 +390,7 @@
         </a>
         
     </div>
-        <div style="max-width: 700px; margin: 4rem auto; text-align: left; background: rgba(30,41,59,0.5); padding: 2rem; border-radius: 16px;">
+        <div style="max-width: 700px; margin: 4rem auto; text-align: left; background: var(--card-bg); padding: 2rem; border-radius: 16px; border: var(--glass-border);">
         <h3 style="margin-bottom: 1rem; color: var(--accent);">Nuestra Misión</h3>
         <p style="color: var(--text-muted); line-height: 1.6;">
         OfferHunt nació como un proyecto académico para resolver un problema real: la volatilidad de precios en el mercado paraguayo.
@@ -295,51 +414,23 @@
 
             <div class="footer-col">
                 <h4>Enlaces Rápidos</h4>
-                <ul>
-                    <li><a onclick="navegar('inicio')" style="cursor: pointer;">Inicio</a></li>
-                    <li><a onclick="navegar('tiendas')" style="cursor: pointer;">Tiendas</a></li>
-                    <li><a onclick="navegar('nosotros')" style="cursor: pointer;">Nosotros</a></li>
+                <ul class="footer-links">
+                    <li><a onclick="navegar('inicio')" style="cursor: pointer;"><i class="fa-solid fa-house"></i> Inicio</a></li>
+                    <li><a onclick="navegar('tiendas')" style="cursor: pointer;"><i class="fa-solid fa-store"></i> Tiendas</a></li>
+                    <li><a onclick="navegar('nosotros')" style="cursor: pointer;"><i class="fa-solid fa-users"></i> Nosotros</a></li>
                 </ul>
             </div>
 
             <div class="footer-col">
                 <h4>Equipo</h4>
                 <ul class="team-list">
-                    <li>
-                        <a href="https://github.com/IvanOcampos" target="_blank">
-                            <i class="fa-brands fa-github"></i> Ivan Ocampos
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/Axxeliz" target="_blank">
-                            <i class="fa-brands fa-github"></i> Alexis Cardenas
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/caandres74-eng" target="_blank">
-                            <i class="fa-brands fa-github"></i> Esteban Gonzalez
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/johanaalfonso809" target="_blank">
-                            <i class="fa-brands fa-github"></i> Johana Romero
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/Julito-33" target="_blank">
-                            <i class="fa-brands fa-github"></i> Julio Ybañez
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/maxiarce007" target="_blank">
-                            <i class="fa-brands fa-github"></i> Maximiliano Arce
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/mixinti" target="_blank">
-                            <i class="fa-brands fa-github"></i> Maria Colman
-                        </a>
-                    </li>
+                    <li><a href="https://github.com/IvanOcampos" target="_blank"><i class="fa-brands fa-github"></i> Ivan Ocampos</a></li>
+                    <li><a href="https://github.com/Axxeliz" target="_blank"><i class="fa-brands fa-github"></i> Alexis Cardenas</a></li>
+                    <li><a href="https://github.com/caandres74-eng" target="_blank"><i class="fa-brands fa-github"></i> Esteban Gonzalez</a></li>
+                    <li><a href="https://github.com/johanaalfonso809" target="_blank"><i class="fa-brands fa-github"></i> Johana Romero</a></li>
+                    <li><a href="https://github.com/Julito-33" target="_blank"><i class="fa-brands fa-github"></i> Julio Ybañez</a></li>
+                    <li><a href="https://github.com/maxiarce007" target="_blank"><i class="fa-brands fa-github"></i> Maximiliano Arce</a></li>
+                    <li><a href="https://github.com/mixinti" target="_blank"><i class="fa-brands fa-github"></i> Maria Colman</a></li>
                 </ul>
             </div>
 
@@ -355,7 +446,7 @@
     <div class="modal-overlay" id="chartModal">
         <div class="modal-content">
             <button class="close-btn" onclick="cerrarModal()">&times;</button>
-            <h2 id="modalTitle">Producto</h2>
+            <h2 id="modalTitle" style="color: var(--text-main)">Producto</h2>
             <p id="modalStore" style="color: var(--text-muted); margin-bottom: 20px;">Tienda</p>
             <canvas id="priceChart"></canvas>
         </div>
@@ -367,7 +458,30 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         cargarInicio();
+        
+        // --- LOGICA MODO OSCURO/CLARO ---
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.querySelector('#themeToggle i').className = 'fa-solid fa-sun';
+        }
     });
+
+    // Función para cambiar el tema
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.querySelector('#themeToggle i');
+        
+        if (body.getAttribute('data-theme') === 'light') {
+            body.removeAttribute('data-theme'); // Volver a Dark
+            icon.className = 'fa-solid fa-moon';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.setAttribute('data-theme', 'light'); // Cambiar a Light
+            icon.className = 'fa-solid fa-sun';
+            localStorage.setItem('theme', 'light');
+        }
+    }
 
     function toggleMenu() {
         document.getElementById('sidebar').classList.toggle('active');
@@ -381,13 +495,12 @@
         window.scrollTo(0, 0);
 
         if (vista === 'inicio') {
-            document.getElementById('result-title').textContent = " Ofertas Recientes";
+            document.getElementById('result-title').textContent = "🔥 Ofertas Recientes";
             document.getElementById('userInput').value = "";
             cargarInicio();
         }
     }
 
-    // --- CARGAR INICIO (GET /products/ filtra solo web) ---
     async function cargarInicio() {
         const grid = document.getElementById('grid-productos');
         try {
@@ -401,7 +514,6 @@
         }
     }
 
-    // --- BUSCAR (POST /search-live/ scrapea en vivo) ---
     async function ejecutarBusqueda() {
         const input = document.getElementById('userInput').value.trim();
         const grid = document.getElementById('grid-productos');
@@ -450,7 +562,6 @@
             const card = document.createElement('div');
             card.className = 'card';
             
-            // ✅ AQUÍ ESTÁ EL CAMBIO: Botón con Ícono Gráfico (sin texto "Historial")
             card.innerHTML = `
                 <div class="card-img-container">
                     <span class="store-badge" style="background:${badgeColor}">${tienda}</span>
@@ -477,13 +588,25 @@
         const ctx = document.getElementById('priceChart').getContext('2d');
         if (chartInstance) chartInstance.destroy();
         const history = producto.prices || [];
+        
+        // Colores dinámicos para el gráfico
+        const gridColor = getComputedStyle(document.body).getPropertyValue('--chart-grid').trim();
+        const textColor = getComputedStyle(document.body).getPropertyValue('--text-muted').trim();
+
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: history.map(p => new Date(p.captured_at).toLocaleDateString()),
                 datasets: [{ label: 'Precio', data: history.map(p => p.amount), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.2)', fill: true }]
             },
-            options: { responsive: true, plugins: {legend:{labels:{color:'white'}}}, scales: {y:{ticks:{color:'#94a3b8'}}, x:{ticks:{color:'#94a3b8'}}} }
+            options: { 
+                responsive: true, 
+                plugins: {legend:{labels:{color: textColor}}}, 
+                scales: {
+                    y:{ticks:{color: textColor}, grid:{color: gridColor}}, 
+                    x:{ticks:{color: textColor}, grid:{color: gridColor}}
+                } 
+            }
         });
     }
     
