@@ -1,3 +1,5 @@
+#Bot de Telegram
+python-telegram-bot apscheduler
 # API y Servidor
 fastapi
 uvicorn[standard]

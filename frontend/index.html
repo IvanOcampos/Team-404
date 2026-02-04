@@ -3,275 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cazador de Ofertas - Estilo Dark Tech</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>OfferHunt | Monitor de Precios</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root {
-            --primary: #00d9ff;
-            --primary-dark: #0066ff;
-            --bg-dark: #030a1e;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text-main: #ffffff;
-            --text-dim: #b0b8d1;
-            --font-display: 'Outfit', sans-serif;
-            --font-body: 'DM Sans', sans-serif;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* --- LÓGICA DE NAVEGACIÓN --- */
-        #screen-switch { display: none; }
-        #screen-switch:checked ~ #welcome-page { display: none; }
-        #search-page { display: none; }
-        #screen-switch:checked ~ #search-page { display: block; }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
-            font-family: var(--font-body);
+            background-color: var(--bg-color);
             color: var(--text-main);
-            background-color: var(--bg-dark);
+            background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
             min-height: 100vh;
+            display: flex; flex-direction: column;
             overflow-x: hidden;
         }
 
-        /* FONDO TECNOLÓGICO */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: 
-                radial-gradient(circle, rgba(0, 217, 255, 0.3) 1px, transparent 1px) 0 0 / 30px 30px,
-                linear-gradient(135deg, rgba(13, 31, 75, 0.9) 0%, rgba(3, 10, 30, 1) 100%),
-                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 10px);
-            z-index: -2;
+        /* --- SIDEBAR (MENÚ LATERAL) --- */
+        .sidebar {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100vh;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
+            border-right: var(--glass-border); z-index: 1000;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2rem; display: flex; flex-direction: column;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
-
-        /* PANTALLA BIENVENIDA */
-        #welcome-page {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+        .close-sidebar { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .sidebar-links { list-style: none; }
+        .sidebar-links li { margin-bottom: 1.5rem; }
+        .sidebar-links a {
+            text-decoration: none; color: var(--text-main); font-size: 1.1rem; font-weight: 500;
+            display: flex; align-items: center; gap: 15px; transition: 0.2s; cursor: pointer;
         }
-
-        .btn-enter {
-            background: var(--primary);
-            color: #030a1e;
-            padding: 20px 50px;
-            border-radius: 12px;
-            font-size: 1.3rem;
-            font-weight: 800;
-            cursor: pointer;
-            font-family: var(--font-display);
-            transition: 0.3s;
-            box-shadow: 0 0 25px rgba(0, 217, 255, 0.4);
-            margin-top: 30px;
-        }
-
-        /* PANTALLA BÚSQUEDA */
-        .navbar {
-            background: rgba(3, 10, 30, 0.7);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky; top: 0; z-index: 100;
-        }
-
-        .nav-container {
-            max-width: 1400px; margin: 0 auto; padding: 0 20px;
-            display: flex; align-items: center; justify-content: space-between; height: 70px;
-        }
-
-        .logo { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: #ffffff; }
-
-        .hero { max-width: 1400px; margin: 0 auto; padding: 60px 20px; text-align: center; }
-
-        .hero h1 {
-            font-family: var(--font-display); font-size: 3.5rem; font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #a0aec0 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        .search-box {
-            max-width: 800px; margin: 30px auto;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px; padding: 8px; display: flex; backdrop-filter: blur(10px);
-        }
-
-        .search-input {
-            flex: 1; background: transparent; border: none;
-            padding: 15px 20px; color: white; font-size: 1.1rem; outline: none;
-        }
-
-        .search-btn {
-            background: var(--primary); color: #030a1e; border: none;
-            padding: 0 30px; border-radius: 12px; font-weight: 700; cursor: pointer;
-        }
-
-        /* TARJETAS Y FAVORITOS */
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-
-        .offer-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px; overflow: hidden; position: relative; transition: 0.3s;
-        }
-
-        .offer-image { height: 200px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .sidebar-links a:hover { color: var(--accent); padding-left: 10px; }
         
-        .fav-btn {
-            position: absolute; top: 15px; right: 15px;
-            background: rgba(0,0,0,0.4); border: none; color: white;
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            font-size: 1.2rem; transition: 0.3s; z-index: 5;
+        .overlay-menu {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 999;
+            opacity: 0; visibility: hidden; transition: 0.3s; backdrop-filter: blur(2px);
         }
-        .fav-btn.active { color: #ff4d4d; background: white; }
+        .overlay-menu.active { opacity: 1; visibility: visible; }
 
-        .offer-content { padding: 20px; }
-        .offer-title { color: white; font-size: 1.2rem; margin-bottom: 10px; }
-        .price-current { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
-
-        .btn-primary {
-            display: block; width: 100%; padding: 12px; background: transparent;
-            border: 1px solid var(--primary); color: var(--primary);
-            border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 15px;
-            text-align: center; text-decoration: none; transition: 0.2s;
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 5%;
+            backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 50;
+            border-bottom: var(--glass-border);
+            background: rgba(15, 23, 42, 0.9);
         }
-        .btn-primary:hover { background: var(--primary); color: #030a1e; }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .menu-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .menu-btn:hover { color: var(--primary); transform: scale(1.1); }
+        .logo { font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; color: transparent; display: flex; align-items: center; gap: 10px; }
+
+        /* --- VISTAS --- */
+        .view-section { display: none; animation: fadeIn 0.5s ease; }
+        .view-section.active-view { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- ESTILOS COMUNES --- */
+        .hero { text-align: center; padding: 5rem 1rem 3rem; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+        .hero p { color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2.5rem; }
+
+        .search-container { max-width: 650px; margin: 0 auto; position: relative; }
+        .search-input {
+            width: 100%; padding: 1.2rem 1.5rem; padding-right: 4rem;
+            border-radius: 50px; border: none; background: rgba(30, 41, 59, 0.9);
+            color: white; font-size: 1.1rem; border: var(--glass-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: 0.3s;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+        .search-btn {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            background: var(--primary); border: none; color: white;
+            width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.3s; font-size: 1.2rem;
+        }
+        .search-btn:hover { background: var(--accent); transform: translateY(-50%) scale(1.1); }
+
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; padding: 2rem 5%; max-width: 1200px; margin: 0 auto 4rem; }
+        .feature-item { text-align: center; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: var(--glass-border); transition: 0.3s; }
+        .feature-item:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); }
+        .feature-icon { font-size: 2rem; color: var(--accent); margin-bottom: 1rem; }
+
+        .container { padding: 2rem 5%; max-width: 1400px; margin: 0 auto; flex: 1; width: 100%; }
+        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+
+        .card { background: var(--card-bg); border-radius: 16px; overflow: hidden; border: var(--glass-border); transition: 0.3s; position: relative; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
+        .card:hover { transform: translateY(-7px); box-shadow: 0 15px 35px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.3); }
+        .card-img-container { height: 220px; padding: 1.5rem; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%); position: relative; }
+        .card-img { max-height: 100%; max-width: 100%; object-fit: contain; }
+        .store-badge { position: absolute; top: 12px; right: 12px; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; background: rgba(15, 23, 42, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); }
+        .card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .current-price { font-size: 1.4rem; font-weight: 800; color: var(--text-main); }
+        
+        .actions { margin-top: 1.5rem; display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-main:hover { background: #2563eb; }
+        .btn-sec { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-sec:hover { background: rgba(255,255,255,0.1); }
+
+        /* --- TIENDAS --- */
+        .stores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 2rem; padding-bottom: 4rem; }
+        .store-card { background: var(--card-bg); padding: 2rem; border-radius: 16px; border: var(--glass-border); text-align: center; transition: 0.3s; cursor: pointer; }
+        .store-card:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2); }
+        .store-logo { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .store-logo img { width: 90%; }
+        .store-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .store-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+        /* --- TEAM --- */
+        .team-section { padding: 4rem 5%; background: rgba(0,0,0,0.2); border-top: var(--glass-border); margin-top: 4rem; text-align: center; }
+        .team-grid { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 3rem; }
+        .team-card { background: var(--card-bg); padding: 2rem; border-radius: 16px; border: var(--glass-border); width: 200px; }
+        .team-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: 700; }
+
+        footer { background: #020617; padding: 3rem 5%; border-top: 1px solid #1e293b; color: var(--text-muted); margin-top: auto; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
+        .copyright { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #1e293b; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #1e293b; width: 90%; max-width: 800px; border-radius: 20px; padding: 2.5rem; border: var(--glass-border); position: relative; }
+        .close-btn { position: absolute; top: 20px; right: 25px; background: none; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
+        
+        .status-msg { grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted); font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-    <input type="checkbox" id="screen-switch">
-
-    <div id="welcome-page">
-        <h1 style="font-family: var(--font-display); font-size: 4rem; font-weight: 800;">Bienvenidos al mejor<br>cazador de ofertas</h1>
-        <label for="screen-switch" class="btn-enter">ENTRAR A BUSCAR</label>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><i class="fa-solid fa-bolt"></i> OfferHunt</div>
+            <button class="close-sidebar" onclick="toggleMenu()">&times;</button>
+        </div>
+        <ul class="sidebar-links">
+            <li><a onclick="navegar('inicio')"><i class="fa-solid fa-house"></i> Inicio</a></li>
+            <li><a onclick="navegar('tiendas')"><i class="fa-solid fa-store"></i> Tiendas Soportadas</a></li>
+            <li><a onclick="navegar('nosotros')"><i class="fa-solid fa-users"></i> Sobre Nosotros</a></li>
+            
+            <li style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <a href="https://t.me/OfferHunt_py_bot" target="_blank" style="color: #3b82f6;">
+                    <i class="fa-brands fa-telegram" style="font-size: 1.3rem;"></i> Activar Bot
+                </a>
+            </li>
+        </ul>
+        <div style="margin-top: auto; padding-top: 2rem; border-top: var(--glass-border); color: var(--text-muted); font-size: 0.8rem; text-align: center;">
+            v2.4 Beta
+        </div>
     </div>
+    <div class="overlay-menu" id="overlayMenu" onclick="toggleMenu()"></div>
 
-    <div id="search-page">
-        <nav class="navbar">
-            <div class="nav-container"><div class="logo">Cazador de Ofertas</div></div>
-        </nav>
+    <nav class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo"><i class="fa-solid fa-bolt"></i> OfferHunt</div>
+        </div>
+        <div style="font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px;">v2.4</div>
+    </nav>
 
+    <div id="view-inicio" class="view-section active-view">
         <section class="hero">
-            <h1>¿Qué quieres encontrar hoy?</h1>
-            <div class="search-box">
-                <input type="text" id="userInput" class="search-input" placeholder="Busca 'celulares', 'iPhone', 'audio'...">
-                <button class="search-btn" onclick="ejecutarBusqueda()">Buscar 🔍</button>
+            <h1>El Cazador de Ofertas</h1>
+            <p>Rastreamos y comparamos precios en tiempo real de las mejores tiendas de Paraguay.</p>
+            <div class="search-container">
+                <input type="text" id="userInput" class="search-input" placeholder="Ej: iPhone 15, PlayStation 5, Monitor...">
+                <button class="search-btn" onclick="ejecutarBusqueda()"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </section>
 
+        <section class="features">
+            <div class="feature-item"><div class="feature-icon"><i class="fa-solid fa-robot"></i></div><div class="feature-title">Rastreo Automático</div><div class="feature-desc">Escaneo en tiempo real de múltiples e-commerce.</div></div>
+            <div class="feature-item"><div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div><div class="feature-title">Historial de Precios</div><div class="feature-desc">Detecta bajadas de precio al instante.</div></div>
+            <div class="feature-item"><div class="feature-icon"><i class="fa-solid fa-check-circle"></i></div><div class="feature-title">Datos Reales</div><div class="feature-desc">Información directa de la fuente.</div></div>
+        </section>
+
         <div class="container">
-            <h2 id="result-title" style="margin-bottom: 30px;">🔥 Ofertas destacadas</h2>
-            <div class="offers-grid" id="grid-productos">
-                </div>
+            <div class="section-header">
+                <i class="fa-solid fa-fire" style="color: #f59e0b; font-size: 1.5rem;"></i>
+                <h2 id="result-title"> Ofertas Recientes</h2>
+            </div>
+            <div id="grid-productos" class="grid"></div>
         </div>
     </div>
 
-    <script>
-        // URL de tu Backend (FastAPI)
-        // Asegúrate de que uvicorn esté corriendo en el puerto 8000
-        const API_URL = "http://127.0.0.1:8000";
+    <div id="view-tiendas" class="view-section">
+        <section class="hero" style="padding-bottom: 2rem;"><h1>Tiendas Aliadas</h1><p>Monitoreamos las principales tiendas de tecnología del país.</p></section>
+        <div class="container">
+            <div class="stores-grid">
+                <div class="store-card" onclick="window.open('https://nissei.com/py/', '_blank')"><div class="store-logo"><img src="https://nissei.com/media/logo/stores/1/logo_nissei.png" alt="Nissei" style="object-fit: contain;"></div><div class="store-name">Nissei</div><button class="btn btn-main">Visitar</button></div>
+                <div class="store-card" onclick="window.open('https://cellshop.com.py/', '_blank')"><div class="store-logo" style="background:#e11d2b"><span style="color:white; font-weight:800; font-size:1.5rem">CELL</span></div><div class="store-name">CellShop</div><button class="btn btn-main">Visitar</button></div>
+                <div class="store-card" onclick="window.open('https://tiendamovil.com.py/', '_blank')"><div class="store-logo" style="background:#ec4899"><i class="fa-solid fa-mobile-screen" style="color:white; font-size:2rem"></i></div><div class="store-name">Tienda Movil</div><button class="btn btn-main">Visitar</button></div>
+                <div class="store-card" onclick="window.open('https://toptechnology.com.py/', '_blank')"><div class="store-logo" style="background:#3b82f6"><span style="color:white; font-weight:800;">TOP</span></div><div class="store-name">Top Tech</div><button class="btn btn-main">Visitar</button></div>
+            </div>
+        </div>
+    </div>
 
-        // Función principal de búsqueda (ASYNC para esperar al backend)
-        async function ejecutarBusqueda() {
-            const input = document.getElementById('userInput').value.trim();
-            const grid = document.getElementById('grid-productos');
-            const title = document.getElementById('result-title');
-            
-            // Mostrar estado de "Cargando..."
-            grid.innerHTML = "<p style='color: var(--primary); text-align:center; grid-column: 1/-1;'>📡 Conectando con el servidor...</p>";
+    <div id="view-nosotros" class="view-section">
+        <section class="team-section" style="margin-top: 0; background: transparent; border: none;">
+            <div class="team-header"><h2>Conoce al <span style="color: var(--primary);">Team 404</span></h2><p>Estudiantes apasionados por el desarrollo de software y la automatización.</p></div>
+            <div class="team-grid">
+                <div class="team-card"><div class="team-avatar">A</div><div class="team-name">Alejandro</div><div class="team-role">Full Stack Developer</div></div>
+                <div class="team-card"><div class="team-avatar">E</div><div class="team-name">Equipo</div><div class="team-role">Scraping Specialist</div></div>
+                <div class="team-card"><div class="team-avatar">D</div><div class="team-name">Diseño</div><div class="team-role">UI/UX Designer</div></div>
+            </div>
+            <div style="max-width: 700px; margin: 4rem auto; text-align: left; background: rgba(30,41,59,0.5); padding: 2rem; border-radius: 16px;">
+                <h3 style="margin-bottom: 1rem; color: var(--accent);">Nuestra Misión</h3>
+                <p style="color: var(--text-muted); line-height: 1.6;">
+                    OfferHunt nació como un proyecto académico para resolver un problema real: la volatilidad de precios en el mercado paraguayo. 
+                    Utilizando tecnologías como Python, Selenium y Web Scraping, buscamos democratizar el acceso a la información de precios, 
+                    permitiendo a los usuarios tomar decisiones de compra inteligentes.
+                </p>
+            </div>
+        </section>
+    </div>
 
-            try {
-                // 1. Construir la URL con el parámetro de búsqueda si existe
-                let url = `${API_URL}/products/`;
-                if (input) {
-                    url += `?search=${input}`;
-                }
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col"><div class="logo" style="margin-bottom: 1rem;"><i class="fa-solid fa-bolt"></i> OfferHunt</div><p>La herramienta definitiva para monitorear precios.</p></div>
+            <div class="footer-col"><h4>Enlaces Rápidos</h4><ul><li><a onclick="navegar('inicio')" style="cursor: pointer;">Inicio</a></li><li><a onclick="navegar('tiendas')" style="cursor: pointer;">Tiendas</a></li><li><a onclick="navegar('nosotros')" style="cursor: pointer;">Nosotros</a></li></ul></div>
+            <div class="footer-col"><h4>Contacto</h4><div style="display: flex; gap: 15px; font-size: 1.5rem;"><a href="#"><i class="fa-brands fa-github"></i></a><a href="#"><i class="fa-brands fa-linkedin"></i></a></div></div>
+        </div>
+        <div class="copyright">&copy; 2024 Team 404. Todos los derechos reservados.</div>
+    </footer>
 
-                // 2. Hacer la petición al Backend
-                const response = await fetch(url);
-                
-                if (!response.ok) throw new Error("Error al conectar con el servidor");
+    <div class="modal-overlay" id="chartModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="cerrarModal()">&times;</button>
+            <h2 id="modalTitle">Producto</h2>
+            <p id="modalStore" style="color: var(--text-muted); margin-bottom: 20px;">Tienda</p>
+            <canvas id="priceChart"></canvas>
+        </div>
+    </div>
 
-                const data = await response.json();
+<script>
+    const API_URL = "http://127.0.0.1:8000";
+    let chartInstance = null;
 
-                // 3. Verificar si hay resultados
-                if (data.length === 0) {
-                    grid.innerHTML = "<p style='color: var(--text-dim); font-size: 1.2rem; grid-column: 1/-1; text-align:center;'>No se encontraron productos. ¡Prueba a correr el 'seeder.py' en el backend!</p>";
-                    title.textContent = "❌ Sin resultados";
-                    return;
-                }
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarInicio();
+    });
 
-                // 4. Mostrar los productos
-                mostrarProductos(data);
-                title.textContent = input ? `🔍 Resultados para: ${input}` : "🔥 Ofertas del Backend";
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlayMenu').classList.toggle('active');
+    }
 
-            } catch (error) {
-                console.error("Error:", error);
-                grid.innerHTML = "<p style='color: #ff4d4d; grid-column: 1/-1; text-align:center;'>⚠️ Error: No se pudo conectar al Backend.<br>Verifique que 'uvicorn main:app' esté corriendo.</p>";
+    function navegar(vista) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+        document.getElementById(`view-${vista}`).classList.add('active-view');
+        toggleMenu();
+        window.scrollTo(0, 0);
+
+        if (vista === 'inicio') {
+            document.getElementById('result-title').textContent = " Ofertas Recientes";
+            document.getElementById('userInput').value = "";
+            cargarInicio();
+        }
+    }
+
+    // --- CARGAR INICIO (GET /products/ filtra solo web) ---
+    async function cargarInicio() {
+        const grid = document.getElementById('grid-productos');
+        try {
+            const response = await fetch(`${API_URL}/products/?limit=24`);
+            if (!response.ok) throw new Error("Error API");
+            const data = await response.json();
+            if (data.length > 0) mostrarProductos(data);
+            else grid.innerHTML = '<div class="status-msg">Base de datos vacía.</div>';
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // --- BUSCAR (POST /search-live/ scrapea en vivo) ---
+    async function ejecutarBusqueda() {
+        const input = document.getElementById('userInput').value.trim();
+        const grid = document.getElementById('grid-productos');
+        const title = document.getElementById('result-title');
+        
+        if (!input) { alert("Escribe algo..."); return; }
+
+        grid.innerHTML = '<div class="status-msg"><i class="fa-solid fa-satellite-dish fa-spin" style="font-size: 3rem;"></i><br><br>Buscando "' + input + '"...</div>';
+
+        try {
+            const response = await fetch(`${API_URL}/search-live/?keyword=${input}`, { method: 'POST' });
+            const data = await response.json();
+
+            if (!data || data.length === 0) {
+                grid.innerHTML = '<div class="status-msg">Sin resultados.</div>';
+                return;
             }
+            mostrarProductos(data);
+            title.textContent = `Resultados: "${input}"`;
+        } catch (e) {
+            grid.innerHTML = '<div class="status-msg" style="color:red">Error conexión.</div>';
         }
+    }
 
-        function mostrarProductos(listaProductos) {
-            const grid = document.getElementById('grid-productos');
-            grid.innerHTML = ""; // Limpiar pantalla antes de pintar
+    function mostrarProductos(productos) {
+        const grid = document.getElementById('grid-productos');
+        grid.innerHTML = "";
+        productos.forEach(p => {
+            const history = p.prices || [];
+            const lastPrice = history.length > 0 ? history[history.length - 1] : null;
+            const precio = lastPrice ? lastPrice.amount.toLocaleString('es-PY') : "---";
+            const tienda = lastPrice ? lastPrice.store : "Web";
             
-            listaProductos.forEach(p => {
-                // LÓGICA DE MAPEO (Adaptamos tus datos del Backend al Frontend)
-                
-                // 1. Obtener el precio más reciente del historial
-                // Si el array prices tiene datos, tomamos el último. Si no, 0.
-                const ultimoPrecioObj = p.prices.length > 0 ? p.prices[p.prices.length - 1] : null;
-                const precio = ultimoPrecioObj ? ultimoPrecioObj.amount.toLocaleString() : "---";
-                const tienda = ultimoPrecioObj ? ultimoPrecioObj.store : "Varios";
+            let imgHTML = '<i class="fa-solid fa-box-open" style="font-size: 3rem; color: #475569;"></i>';
+            if (p.image_url && p.image_url.startsWith('http')) {
+                imgHTML = `<img src="${p.image_url}" class="card-img" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-image\'></i>'">`;
+            }
 
-                // 2. Manejo de imagen (Si es null o no es URL, usamos un emoji por defecto)
-                let contenidoImagen;
-                if (p.image_url && p.image_url.startsWith('http')) {
-                    contenidoImagen = `<img src="${p.image_url}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                } else {
-                    contenidoImagen = `<span style="font-size: 4rem;">📦</span>`;
-                }
+            let badgeColor = "#64748b";
+            const t = tienda.toLowerCase();
+            if (t.includes("nissei")) badgeColor = "#ea580c";
+            if (t.includes("movil")) badgeColor = "#ec4899";
+            if (t.includes("shop")) badgeColor = "#dc2626";
+            if (t.includes("top")) badgeColor = "#3b82f6";
 
-                // 3. Pintar la tarjeta HTML
-                grid.innerHTML += `
-                    <div class="offer-card">
-                        <div class="offer-image" style="background: linear-gradient(45deg, #030a1e, #00D9FF);">
-                            <button class="fav-btn" onclick="toggleFav(this)">❤</button>
-                            ${contenidoImagen}
-                        </div>
-                        <div class="offer-content">
-                            <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; text-transform: uppercase;">${tienda}</div>
-                            <h3 class="offer-title">${p.name}</h3>
-                            <div class="price-current">$${precio}</div>
-                            <a href="${p.url}" target="_blank" class="btn-primary">Ver oferta</a>
-                        </div>
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            // ✅ AQUÍ ESTÁ EL CAMBIO: Botón con Ícono Gráfico (sin texto "Historial")
+            card.innerHTML = `
+                <div class="card-img-container">
+                    <span class="store-badge" style="background:${badgeColor}">${tienda}</span>
+                    ${imgHTML}
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">${p.name}</h3>
+                    <div class="current-price">Gs. ${precio}</div>
+                    <div class="actions">
+                        <a href="${p.url}" target="_blank" class="btn btn-main">Ver Tienda</a>
+                        <button onclick='abrirGrafico(${JSON.stringify(p)})' class="btn btn-sec">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </button>
                     </div>
-                `;
-            });
-        }
-
-        function toggleFav(btn) {
-            btn.classList.toggle('active');
-            // Aquí conectarás la lógica de favoritos en el futuro
-        }
-
-        // Eventos al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            // Permitir buscar con Enter
-            const inputBusqueda = document.getElementById('userInput');
-            inputBusqueda.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') ejecutarBusqueda();
-            });
-            
-            // Carga inicial automática (Trae todos los productos)
-            ejecutarBusqueda();
+                </div>`;
+            grid.appendChild(card);
         });
-    </script>
+    }
+
+    function abrirGrafico(producto) {
+        document.getElementById('chartModal').style.display = 'flex';
+        document.getElementById('modalTitle').textContent = producto.name;
+        document.getElementById('modalStore').textContent = producto.prices[0]?.store || "Tienda";
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        const history = producto.prices || [];
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: history.map(p => new Date(p.captured_at).toLocaleDateString()),
+                datasets: [{ label: 'Precio', data: history.map(p => p.amount), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.2)', fill: true }]
+            },
+            options: { responsive: true, plugins: {legend:{labels:{color:'white'}}}, scales: {y:{ticks:{color:'#94a3b8'}}, x:{ticks:{color:'#94a3b8'}}} }
+        });
+    }
+    
+    function cerrarModal() { document.getElementById('chartModal').style.display = 'none'; }
+    window.onclick = e => { if(e.target == document.getElementById('chartModal')) cerrarModal(); }
+    document.getElementById('userInput').addEventListener('keypress', e => { if(e.key==='Enter') ejecutarBusqueda(); });
+</script>
 </body>
 </html>

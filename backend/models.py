@@ -8,11 +8,12 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    url = Column(String, unique=True) # URL principal para identificarlo
+    url = Column(String, unique=True)
     image_url = Column(String, nullable=True)
+    # p ara saber si vino de la 'web' o del 'bot'
+    source = Column(String, default="web") 
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Relación: Un producto tiene MUCHOS precios
     prices = relationship("Price", back_populates="product")
 
 class Price(Base):
@@ -20,12 +21,18 @@ class Price(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Float)
-    currency = Column(String, default="Gs") # Moneda por defecto: Guaraníes
-    store = Column(String) # Ej: Amazon, eBay
+    currency = Column(String, default="Gs")
+    store = Column(String)
     captured_at = Column(DateTime, default=datetime.utcnow)
     
-    # Llave foránea: Este precio pertenece a un Producto específico
     product_id = Column(Integer, ForeignKey("products.id"))
-    
-    # Relación inversa
     product = relationship("Product", back_populates="prices")
+
+class PriceAlert(Base):
+    __tablename__ = "price_alerts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    chat_id = Column(String, index=True)
+    keyword = Column(String)
+    target_price = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
