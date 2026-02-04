@@ -4,7 +4,7 @@ import time
 import re
 import sys
 
-# --- CONFIGURACION ---
+# CONFIGURACION
 API_URL = "http://127.0.0.1:8000/products/"
 
 HEADERS_GLOBAL = {
@@ -25,9 +25,7 @@ print("-" * 60)
 print(" SCRAPER FINAL - DEMO PRESENTACION")
 print("-" * 60)
 
-# ======================================================
 # UTILIDADES
-# ======================================================
 def limpiar_precio(texto_precio):
     if not texto_precio: return None
     texto = str(texto_precio).strip().lower()
@@ -52,9 +50,7 @@ def enviar_al_backend(producto):
             print(f"[OK] {producto['store']}: {producto['name'][:40]}...")
     except: pass
 
-# ======================================================
 # 1. TIENDAS RAPIDAS (Requests)
-# ======================================================
 def scraper_fast(nombre, url, sel_card, sel_name, sel_price, sel_img):
     print(f"[INFO] Procesando {nombre}...")
     try:
@@ -82,9 +78,8 @@ def scraper_fast(nombre, url, sel_card, sel_name, sel_price, sel_img):
         print(f"[INFO] {nombre} finalizado: {count} items.")
     except Exception as e: print(f"[ERROR] {nombre}: {e}")
 
-# ======================================================
-# 2. TIENDAS SELENIUM (TiendaMovil & TopTechnology)
-# ======================================================
+# TIENDAS SELENIUM 
+
 def scraper_selenium(driver, tiendas):
     for tienda in tiendas:
         nombre = tienda['nombre']
@@ -160,16 +155,14 @@ def scraper_selenium(driver, tiendas):
         except Exception as e:
             print(f"[ERROR] {e}")
 
-# ======================================================
 # MAIN
-# ======================================================
 if __name__ == "__main__":
     
     # 1. NISSEI & CELLSHOP
     scraper_fast("Nissei", "https://nissei.com/py/electronica/celulares-tabletas/celulares-accesorios/telefonos-inteligentes", "li.product-item", "a.product-item-link", "[data-price-amount]", "img.product-image-photo")
     scraper_fast("CellShop", "https://cellshop.com.py/telefonia", ".product-item-info", ".product-item-link", ".price", "img")
 
-    # 2. SELENIUM (TiendaMovil + TopTechnology)
+    #  SELENIUM
     if SELENIUM_DISPONIBLE:
         print("[INFO] Iniciando Selenium (Oculto)...")
         options = Options()
